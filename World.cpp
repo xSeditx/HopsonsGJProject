@@ -7,114 +7,109 @@ and sprites and assets get managed here as every other updates forks from this
 */
 
 
-World::World(VideoCamera *cam, Player *p1)
+World::World(VideoCamera *cam)
 {
     Camera = cam;
-    Player1 = p1;
-}
-Level::Level()
-{
+    Player1 = nullptr;
     Difficulty = 1;
-}
-void Level::AddSprite(Sprite *object)
-{
-    SpriteList.push_back(object);
-}
-void Level::AddEnemy(Sprite *object)
-{
-    EnemyList.push_back(object);
-}
-void Level::AddProjectile(Projectile *object)
-{
-    ProjectileList.push_back(object);
-}
-void Level::Update()
-{
-    for(auto &C: Collider::CollisionList)
-    {
-        C->Update();
-    }
-    for(auto &WorldObject: SpriteList)
-    {
-        WorldObject->Update();
-    }
-    for(auto &Enemies: EnemyList)
-    {
-        Enemies->Update();
-    }
+    SpriteSheets = new SpriteSheet();
+    SpriteSheets->LoadAssets();
+    Load();
 
-    Collision::Resolve();
-    Player1->Update();
+    SpriteSheets = new SpriteSheet();
+    SpriteSheets->LoadAssets();
+    WorldTimer = SDL_GetTicks();
 }
-void Level::Render()
+
+//======================================================================================================================
+
+void World::Update()
 {
-    for(auto &WorldObject: SpriteList)
+
+    WorldTimer = SDL_GetTicks();
+    if(((int)WorldTimer %100) == 0)
     {
-        WorldObject->Render();
+        int Index = Enemy::Spawn(Vec2(RANDOM(SCREENWIDTH),0), Vec2(0,3), EyeBallEnemySprite);
+        Enemy::EnemyList[Index].Image.Angle = 0;//RANDOM(10);
+        Enemy::EnemyList[Index].Speed = Vec2(0, .4);
     }
-    for(auto &Enemies: EnemyList)
-    {
-        Enemies->Render();
-    }
-    Player1->Render();
-}
-void Level::Load()
-{
     
-    Camera = new VideoCamera(Vec2(0,0),Vec2(SCREENWIDTH*.5, SCREENHEIGHT *.5));;
 
+    for(auto &Enemies: Enemy::EnemyList)
+    {
+        if(Enemies.Alive)
+        {
+            Enemies.Update();
+        }
+    }
+
+    for(auto &Bullet: Projectile::ProjectileList)
+    {
+        if(Bullet.Alive)
+        {
+            Bullet.Update();
+        }
+    }
+
+    StarBackground->ForwardThrust = -Player1->CollisionBox->Body.Velocity.y + 10;
+    StarBackground->Update();
+    Player1->Update();
+    HeadsUp->Update(Player1->Health, Player1->EnergyLevel, Player1->Lives);
+}
+
+//======================================================================================================================
+
+void World::Render()
+{
+    StarBackground->Render();
+
+    for(auto &Enemies: Enemy::EnemyList)
+    {
+        if(Enemies.Alive)
+        {
+            Enemies.Render();
+        }
+    }
+
+
+    for(auto &Bullet: Projectile::ProjectileList)
+    {
+        if(Bullet.Alive)
+        {
+            Bullet.Render();
+        }
+    }
+
+    Player1->Render();
+    HeadsUp->Render();
+}
+
+//======================================================================================================================
+
+void World::Load()
+{
+    HeadsUp =  new HUD();
+    Enemy::InitializeEnemies();
+    Projectile::InitializeProjectiles();
+    Enemy::InitializeEnemies();
 
     Player1 = new Player;
-    Player1->Position = Vec2(200,200);
-    Player1->Image = new Sprite(new SpriteSheet("Ship.bmp"), 1);
-    Player1->Image->Size = Vec2(160 * .5);
-    Player1->Image->STATE[0] = State(MAKE_Rect(0, 0,160, 160), 4);
-    Player1->Image->ANIMATED = true;
-    Player1->Image->AnimationSpeed = 50;
-    Player1->CollisionBox = Player1->Image->MakeCollisionBox();
+    Player1->Position = Vec2(SCREENWIDTH *.5,SCREENHEIGHT -100);
+
+    Player1->Image = Sprite(SpriteSheets->Ship, 1);
+
+    Player1->Image.Size = Vec2(160 * .6);
+    Player1->Image.STATE[0] = State(MAKE_Rect(0, 0,160, 160), 4);
+    Player1->Image.ANIMATED = true;
+    Player1->Image.AnimationSpeed = 50;
+    Player1->CollisionBox = Player1->Image.MakeCollisionBox();
 
 
-    Sprite *Bullet = new Sprite(new SpriteSheet("Bullet.bmp"), 1); 
-    Bullet->Size = Vec2(8);
-    Bullet->Position = Vec2(SCREENWIDTH/2, SCREENHEIGHT/2);
-    Bullet->STATE[0] = State(MAKE_Rect(0, 0,8, 8), 3);
-    Bullet->ANIMATED = true;
-    Bullet->AnimationSpeed = 50;
-    Bullet->MakeCollisionBox();
-    AddSprite(Bullet);
+    EyeBallEnemySprite = new Sprite(SpriteSheets->Eye,1);
+    EyeBallEnemySprite->Size = Vec2(42);
+    EyeBallEnemySprite->STATE[0] = State(MAKE_Rect(0, 0,42, 42), 3);
+    EyeBallEnemySprite->ANIMATED = true;
+    EyeBallEnemySprite->AnimationSpeed = 100;
 
-
-    Projectile::InitializeProjectiles();
-
-
-    Sprite *Energy =  new Sprite(new SpriteSheet("EnergySpheres.bmp"), 1); 
-    Energy->SetPosition(Vec2(100,100));
-    Energy->Size = Vec2(84);
-
-    Energy->STATE[0] =   State(MAKE_Rect(0, 0,84, 84), 7);
-    Energy->STATE[0] +=  State(MAKE_Rect(0, 84, 84, 84), 7);
-    Energy->STATE[0] +=  State(MAKE_Rect(0, 168, 84, 84), 7);
-    Energy->STATE[0] +=  State(MAKE_Rect(0, 252, 84, 84), 7);
-    Energy->STATE[0] +=  State(MAKE_Rect(0, 336, 84, 84), 7);
-    Energy->STATE[0] +=  State(MAKE_Rect(0, 420, 84, 84), 7);
-    Energy->STATE[0] +=  State(MAKE_Rect(0, 504, 84, 84), 7);
-    Energy->ANIMATED = true;
-    Energy->AnimationSpeed = 50;
-    Energy->MakeCollisionBox();
-    AddSprite(Energy);
-
-
-
-
-
-    Sprite *Eye = new Sprite( new SpriteSheet("eye.bmp"), 1); 
-    Eye->SetPosition(Vec2(300,100));
-    Eye->Size = Vec2(42);
-    Eye->STATE[0] = State(MAKE_Rect(0, 0,42, 42), 3);
-    Eye->ANIMATED = true;
-    Eye->AnimationSpeed = 100;
-    Eye->MakeCollisionBox();
-    AddEnemy(Eye);
-
-
+    StarBackground =  new StarField();
 }

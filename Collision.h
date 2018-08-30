@@ -4,9 +4,15 @@
 #include"Window.h"
 #include"QuadTree.h"
 #include"Physics.h"
-//#include"sprite.h"
+
+
+#define DEBUG_COLLISIONBOX  0
+
+
+
 
 const float Time_Limit = 16.667f / 1000.0f;
+
 
 enum ColliderType
 {
@@ -57,6 +63,7 @@ public:
         virtual bool IsCollision( Vec2 point) = 0;
         virtual void Update() = 0;
         virtual void Render() = 0;
+        virtual void Sweep()  = 0;
 
 // Static Methods and Variables
         static std::vector<Collider*> CollisionList;
@@ -84,7 +91,7 @@ public:
 
         void Update();
         void Render();
-        void Sweep();
+        void Sweep() override;
 };
 
 
@@ -113,7 +120,7 @@ public:
 
         void Update();
         void Render();
-        void Sweep();
+        void Sweep() override;
 
 inline float GetWidth()  const { return MaxPoint.x - MinPoint.x; }
 inline float GetHeight() const { return MaxPoint.y - MinPoint.y; }
@@ -121,21 +128,23 @@ inline float GetHeight() const { return MaxPoint.y - MinPoint.y; }
 static bool Intersect(AABB a, AABB b);
 
 };
+
+
+
 struct Collision
 {
     Collision( Collider *object1,  Collider *object2);
     Collision();
+
     float Distance;
+
     Vec2 Position;
+
     ColliderType Type1,  
                  Type2;
 
     Collider *Object1,
              *Object2;
- 
-//    Mass *Mass1, 
-//         *Mass2;
-//
 
 static void Clear();
 static void Add( Collider *object1,  Collider *object2);
@@ -144,15 +153,3 @@ static void Resolve();
 static std::vector<Collision> Solver;
 static int NumberOfCollisions;
 };
-
-
-
-
-
-
-class PolygonCollider: public Collider
-{
-public:
-    PolygonCollider();
-};
-

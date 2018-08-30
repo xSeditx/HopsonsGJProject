@@ -1,14 +1,3 @@
-#include"Collision.h"
-
-
-
-
-
-
-
-
-
-
 #include"window.h"
 #include "Collision.h"
 
@@ -30,14 +19,7 @@ float Mass::Gravity = 0.01f;
 std::vector<Collision> Collision::Solver;
 int Collision::NumberOfCollisions = 0;
 
-extern QT *Tree;
 
-
-//float GetDistance(Vec2 p, Vec2 p2)
-//{
-//    return sqrt(Squared(p.x - p2.x) + Squared(p.y-p2.y));
-//}
-//
 //=========================================================================================================================
 //__________________________________    Collider Base Class   _____________________________________________________________
 //-------------------------------------------------------------------------------------------------------------------------
@@ -66,22 +48,10 @@ CollisionSphere::CollisionSphere(Vec2 position, float radius)
 
      Type = ColliderCOLLISIONSPHERE;
 
-     CollisionList.push_back(this);  
+//     CollisionList.push_back(this);  
 
 }
-//CollisionSphere::CollisionSphere(float radius)
-//    : 
-//      Radius(radius) 
-//{
-//    ID = NumberOfObjects++;
-//    Size = Vec2(radius);
-//    //Position = parent->Position;
-//    Body = Mass(radius, parent->Position);
-//    Type = ColliderCOLLISIONSPHERE;
-//    CollisionList.push_back(this);  
-//
-//}
-//
+
 
 bool CollisionSphere::IsCollision( CollisionSphere *other)   // Use to return a float, might go back to doing that
 { 
@@ -187,12 +157,14 @@ void CollisionSphere::Update()
 
     //if(Object)Object->Position = Body.Position; UNBLOCK THIS FIX THE POSITION IN ENTITY
     Position = Body.Position;
-
+#if DEBUG_COLLISIONBOX
     Render(); // Shows the Collision Box
-    Sweep();  // Horrible naming just Temp until I have everything in place. 
+#endif
+ //   Sweep();  // Horrible naming just Temp until I have everything in place. 
 }
 void CollisionSphere::Render()
 {
+
 }
 
 
@@ -223,7 +195,7 @@ AABB::AABB(Vec2 position, Vec2 size)
 
 // Dont really need the Surface Area calculations right now anyway if I am not going to create an AABB tree
 //    SurfaceArea = 2.0f * (GetWidth() * GetHeight() + GetWidth()* GetDepth() + GetHeight()* GetDepth());
-    CollisionList.push_back(this);
+//    CollisionList.push_back(this);
 }
 
 bool AABB::IsCollision( Collider *other)  
@@ -238,8 +210,16 @@ bool AABB::IsCollision( AABB *other)
 { 
     if(other->ID != this->ID)
     {
-        return (MinPoint.x <= other->MaxPoint.x && MaxPoint.x >= other->MinPoint.x) &&
-               (MinPoint.y <= other->MaxPoint.y && MaxPoint.y >= other->MinPoint.y);                   //Intersect(*this, *other);
+        bool ret = (MinPoint.x <= other->MaxPoint.x && MaxPoint.x >= other->MinPoint.x) &&
+                   (MinPoint.y <= other->MaxPoint.y && MaxPoint.y >= other->MinPoint.y);                   //Intersect(*this, *other);
+        if(ret == true)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
     }
   return false;
 }
@@ -290,17 +270,25 @@ AABB AABB::Merge(AABB& other) // Careful I might have something wrong here;
 }
 void AABB::Update()
 {                                 
-    MaxPoint = Position + (Size);   
-    MinPoint = Position - (Size); // Might have to fix this or how the Size is initialized more than likely so that Size more correctly reflectes the real size
-  
+    MaxPoint = Position + Size;   
+    MinPoint = Position - Size; 
+
     Body.Update();
     Position = Body.Position;
-
+#if DEBUG_COLLISIONBOX
     Render();
-    Sweep();  // Horrible naming just Temp until I have everything in place. 
+#endif
+
 }
 void AABB::Render()
 {
+    SDL_SetRenderDrawColor(SCREEN->Renderer,255,0,0,255);
+     SDL_RenderDrawLine(SCREEN->Renderer,
+                      MinPoint.x,
+                      MinPoint.y,
+                      MaxPoint.x,
+                      MaxPoint.y);
+
 }
 void AABB::Sweep() 
  {  

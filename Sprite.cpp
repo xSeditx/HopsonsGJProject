@@ -14,6 +14,14 @@
 #include"Sprite.h"
 #include<memory>
 
+
+  SpriteSheet *SpriteSheet::Ship,
+              *SpriteSheet::Eye, 
+              *SpriteSheet::EnergySpheres, 
+              *SpriteSheet::Bullet,
+              *SpriteSheet::PlasmaBurst;
+              
+
 //==================================================================================================================================
 //_______________________________________  StaticSprite Sheet Class ______________________________________________________________________
 //                                                                                                                                  
@@ -30,9 +38,34 @@ SpriteSheet::SpriteSheet(char *file):SOURCE_FILE(file){
     	if(!SOURCE){
     		    Print("Texture Can not be made.");Print(file);
     	}
+        SDL_FreeSurface(IMAGE);
+
+}
+Texture* SpriteSheet::LoadImageSheet(const char* file)
+{
+    	IMAGE = IMG_Load(file);
+    	if(!IMAGE)
+        {
+    		    Print("Image Can not be loaded");Print(file);
+    	}
+    
+    	SDL_Texture *text = SDL_CreateTextureFromSurface(SCREEN->Renderer,IMAGE);
+    	if(!text)
+        {
+    		    Print("Texture Can not be made.");Print(file);
+    	}
+        SDL_FreeSurface(IMAGE);
+        return text;
 }
 
-
+void SpriteSheet::LoadAssets()
+{
+       Eye = new SpriteSheet("Eye.bmp");
+       Ship = new SpriteSheet("Ship.bmp");
+       EnergySpheres = new SpriteSheet("EnergySpheres.bmp");
+       Bullet = new SpriteSheet("Bullet.bmp");
+       PlasmaBurst = new SpriteSheet("PlasmaBurst.bmp");
+}
 
 //==================================================================================================================================
 //_______________________________________  State Class ______________________________________________________________________
@@ -86,6 +119,7 @@ Sprite::Sprite(SpriteSheet *source, int numstates):TOTAL_STATES(numstates), SOUR
 
     CURRENT_STATE = 0;
     AnimationSpeed = 150;
+    Angle = 0;
 }
 
 void Sprite::Update()
@@ -103,10 +137,9 @@ void Sprite::Render()
 
     SDL_Rect srcrect = STATE[CURRENT_STATE].FRAMES[STATE[CURRENT_STATE].CURRENT_FRAME]; //{ frames * SPRITE_WIDTH, 0, SPRITE_WIDTH, SPRITE_HEIGHT };
     SDL_Rect dstrect = {Position.x - (Size.x *.5), Position.y - (Size.y * .5), Size.x, Size.y};
-    SDL_RenderCopy(SCREEN->Renderer, SOURCE->SOURCE, &srcrect, &dstrect);
+   // SDL_RenderCopy(SCREEN->Renderer, SOURCE->SOURCE, &srcrect, &dstrect);
+    SDL_RenderCopyEx(SCREEN->Renderer, SOURCE->SOURCE, &srcrect, &dstrect, Angle, NULL, SDL_FLIP_NONE);
 }
-
-
 
 //==================================================================================================================================
 //_______________________________________  Left over helper functions ______________________________________________________________________
