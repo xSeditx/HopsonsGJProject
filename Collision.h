@@ -2,7 +2,6 @@
 
 #include<vector>
 #include"Window.h"
-#include"QuadTree.h"
 #include"Physics.h"
 
 

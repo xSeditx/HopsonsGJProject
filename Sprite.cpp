@@ -10,7 +10,7 @@
 //
 //___________________________________________________________________________________________________________________________________________
 
-
+//TODO: Burn this fucking Mess to the ground and start over... Prob not going to complete that before game jam finished
 #include"Sprite.h"
 #include<memory>
 
@@ -19,8 +19,166 @@
               *SpriteSheet::Eye, 
               *SpriteSheet::EnergySpheres, 
               *SpriteSheet::Bullet,
-              *SpriteSheet::PlasmaBurst;
-              
+              *SpriteSheet::PlasmaBurst,
+              *SpriteSheet::Explosion1,
+              *SpriteSheet::Cthulu, 
+              *SpriteSheet::FireBall,
+              *SpriteSheet::Dragon;
+
+
+
+  
+  Sprite *Sprite::ShipSprite,
+         *Sprite::Explosion, 
+         *Sprite::DragonSprite,
+         *Sprite::CthuluEye,
+         *Sprite::EnergySphere,
+         *Sprite::Plasma,
+         *Sprite::FireBall,
+         *Sprite::Bullet;
+  
+
+
+ void Sprite::Initialize()
+ {
+
+//======================---~~~  Players Ship  ~~~---=================================
+
+     ShipSprite = new Sprite(SpriteSheet::Ship,1);
+     ShipSprite->Size = Vec2(42);
+     ShipSprite->STATE[0] = State(MAKE_Rect(0, 0,42, 42), 3);
+     ShipSprite->ANIMATED = true;
+     ShipSprite->AnimationSpeed = 100;
+
+//=======================---~~~  Chtulu Eye  ~~~---===================================
+//This is the first one I made, the second one I drew is so so much better so um.... yeah fuck this one
+//     Sprite *TempEyeSprite = new Sprite(SpriteSheet::Eye, 1);
+//             TempEyeSprite->Size = Vec2(42);
+//             TempEyeSprite->STATE[0] = State(MAKE_Rect(0, 0,42, 42), 3);
+//             TempEyeSprite->ANIMATED = true;
+//             TempEyeSprite->AnimationSpeed = 100;
+////     AllSprites.push_back(TempEyeSprite);
+
+//======================---~~~  Standard Bullet  ~~~---===============================
+             
+        Bullet = new Sprite(SpriteSheet::Bullet, 1); 
+        Bullet->STATE[0] = State(MAKE_Rect(0, 0,8, 8), 3);
+        Bullet->ANIMATED = true;
+        Bullet->Size = Vec2(8);
+
+//=======================---~~~  Plasma Burst  ~~~---=================================
+        Plasma = new Sprite(SpriteSheet::PlasmaBurst, 1);
+        Plasma->STATE[0] = State(MAKE_Rect(0, 0,35,35), 42);
+        Plasma->AnimationSpeed = 10;
+        Plasma->ANIMATED = true;
+        Plasma->Size = Vec2(35);
+
+//======================---~~~  Ship Explosion  ~~~---================================
+
+
+        Explosion = new Sprite(SpriteSheet::Explosion1, 1);
+        Explosion->Size = Vec2(64);
+        Explosion->AnimationSpeed = 100;
+        Explosion->ANIMATED = true;
+        Explosion->STATE[0]  = State(MAKE_Rect(0,   0, 128, 128), 4);
+        Explosion->STATE[0] += State(MAKE_Rect(0, 128, 128, 128), 4);
+        Explosion->STATE[0] += State(MAKE_Rect(0, 256, 128, 128), 4);
+        Explosion->STATE[0] += State(MAKE_Rect(0, 384, 128, 128), 4);
+
+//=======================---~~~  EnergySphere  ~~~---=================================
+        EnergySphere = new Sprite(SpriteSheet::EnergySpheres,1);
+        EnergySphere->Size = Vec2(72);
+        
+        EnergySphere->STATE[0]  = State(MAKE_Rect(0,       0, 72, 72), 7);
+        EnergySphere->STATE[0] += State(MAKE_Rect(0,      72, 72, 72), 7);
+        EnergySphere->STATE[0] += State(MAKE_Rect(0, (2 * 72), 72, 72), 7);
+        EnergySphere->STATE[0] += State(MAKE_Rect(0, (2 * 72), 72, 72), 7 );
+        EnergySphere->STATE[0] += State(MAKE_Rect(0, (2 * 72), 72, 72), 7);
+
+
+//=========================---~~~  Cthulu Eye  ~~~---=================================
+
+        CthuluEye = new Sprite(SpriteSheet::Cthulu,1 );
+        CthuluEye->Size = Vec2(32);
+        CthuluEye->AnimationSpeed = 150;
+        CthuluEye->ANIMATED = true;
+        CthuluEye->STATE[0] = State(MAKE_Rect(0,0,32,32),2);
+
+
+        DragonSprite = new Sprite(SpriteSheet::Dragon,4);
+        DragonSprite->Size = Vec2(64);
+        DragonSprite->AnimationSpeed = 150;
+        DragonSprite->ANIMATED = true;
+        DragonSprite->STATE[0] = State(MAKE_Rect(0,0,56,56),4);
+        DragonSprite->STATE[1] = State(MAKE_Rect(0,56,56,56),4);
+        DragonSprite->STATE[2] = State(MAKE_Rect(0,112,56,56),4);
+        DragonSprite->STATE[3] = State(MAKE_Rect(0,168,56,56),4);
+
+
+        FireBall = new Sprite(SpriteSheet::FireBall,1);
+        FireBall->Size = Vec2(16);
+        FireBall->ANIMATED = true;
+        FireBall->AnimationSpeed = 50;
+        FireBall->STATE[0] = State(MAKE_Rect(0,0,16,16),3);
+ }
+ void SpriteSheet::Initialize()
+{
+       Eye           = new SpriteSheet("Assets\\Eye.bmp");
+       Ship          = new SpriteSheet("Assets\\Ship.bmp");
+       EnergySpheres = new SpriteSheet("Assets\\EnergySpheres.bmp");
+       Bullet        = new SpriteSheet("Assets\\Bullet.bmp");
+       PlasmaBurst   = new SpriteSheet("Assets\\PlasmaBurst.bmp");
+       Explosion1    = new SpriteSheet("Assets\\Explosion.bmp");// 128x128'
+       Dragon        = new SpriteSheet("Assets\\Dragon1.bmp");
+       Cthulu        = new SpriteSheet("Assets\\Cthulu.bmp");
+       FireBall      = new SpriteSheet("Assets\\Fireball.bmp");
+}
+
+
+
+
+
+Image::Image(const char *file)
+{
+     SourceFile = file;
+     Surface *ImageSurface = IMG_Load(file);
+     if(!ImageSurface)
+     {
+             Print("ImageClass: Image Can not be loaded");Print(file);
+         return;
+     }
+     
+     ImageTexture = SDL_CreateTextureFromSurface(SCREEN->Renderer, ImageSurface);
+
+     if(!ImageTexture)
+     {
+             Print("ImageClass: Texture Can not be made.");Print(file);
+         return;
+     }
+     Size.x = ImageSurface->w;
+     Size.y = ImageSurface->h;
+
+     SDL_FreeSurface(ImageSurface);
+
+}
+void Image::Render(Vec2 position)
+{
+
+    SDL_Rect srcrect = {0, 0, Size.x, Size.y}; 
+    SDL_Rect dstrect = {position.x, position.y , position.x + Size.x, position.y + Size.y};
+    SDL_RenderCopy(SCREEN->Renderer, ImageTexture, &srcrect, &dstrect);
+   // SDL_RenderCopyEx(SCREEN->Renderer, SOURCE->SOURCE, &srcrect, &dstrect, Angle, NULL, SDL_FLIP_NONE);
+}
+void Image::Render(Vec2 position, Vec2 size)
+{
+    SDL_Rect srcrect = {0, 0, Size.x, Size.y}; 
+    SDL_Rect dstrect = {position.x, position.y , position.x + size.x, position.y + size.y};
+    SDL_RenderCopy(SCREEN->Renderer, ImageTexture, &srcrect, &dstrect);
+}
+
+
+
+
 
 //==================================================================================================================================
 //_______________________________________  StaticSprite Sheet Class ______________________________________________________________________
@@ -28,44 +186,14 @@
 //  Multiple Sprites are capable of using the same sheet. They are broken down by the State Class and Entity class
 //==================================================================================================================================
 
-SpriteSheet::SpriteSheet(char *file):SOURCE_FILE(file){
-    	IMAGE = IMG_Load(SOURCE_FILE);
-    	if(!IMAGE){
-    		    Print("Image Can not be loaded");Print(file);
-    	}
-    
-    	SOURCE = SDL_CreateTextureFromSurface(SCREEN->Renderer,IMAGE);
-    	if(!SOURCE){
-    		    Print("Texture Can not be made.");Print(file);
-    	}
-        SDL_FreeSurface(IMAGE);
-
-}
-Texture* SpriteSheet::LoadImageSheet(const char* file)
+SpriteSheet::SpriteSheet(char *file)
 {
-    	IMAGE = IMG_Load(file);
-    	if(!IMAGE)
-        {
-    		    Print("Image Can not be loaded");Print(file);
-    	}
-    
-    	SDL_Texture *text = SDL_CreateTextureFromSurface(SCREEN->Renderer,IMAGE);
-    	if(!text)
-        {
-    		    Print("Texture Can not be made.");Print(file);
-    	}
-        SDL_FreeSurface(IMAGE);
-        return text;
+    Sheet = new Image(file);
 }
 
-void SpriteSheet::LoadAssets()
-{
-       Eye = new SpriteSheet("Eye.bmp");
-       Ship = new SpriteSheet("Ship.bmp");
-       EnergySpheres = new SpriteSheet("EnergySpheres.bmp");
-       Bullet = new SpriteSheet("Bullet.bmp");
-       PlasmaBurst = new SpriteSheet("PlasmaBurst.bmp");
-}
+
+
+
 
 //==================================================================================================================================
 //_______________________________________  State Class ______________________________________________________________________
@@ -74,11 +202,14 @@ void SpriteSheet::LoadAssets()
 //==================================================================================================================================
 
 
-State::State(SDL_Rect srcrect,uint numframes):TOTAL_FRAMES(numframes){
+State::State(SDL_Rect srcrect,uint numframes)
+     :TOTAL_FRAMES(numframes)
+{
         CURRENT_FRAME = 0;
     	FRAMES.reserve(numframes);
     	uint x = 0;
-    	LOOP(numframes){
+    	for_loop(Count, numframes)
+        {
     		    SDL_Rect frame;
     		    frame.x = x;
     		    frame.y = srcrect.y;
@@ -89,7 +220,9 @@ State::State(SDL_Rect srcrect,uint numframes):TOTAL_FRAMES(numframes){
     	}
 }
 
-std::vector<SDL_Rect> &State::ADD_FRAME(SDL_Rect frame){
+std::vector<SDL_Rect> 
+    &State::ADD_FRAME(SDL_Rect frame)
+{
 		FRAMES.emplace_back(frame);
 	return FRAMES;
 } // Adds a frame to the State
@@ -132,17 +265,23 @@ void Sprite::Render()
 
     if( ANIMATED == true)
     {
+     
         STATE[CURRENT_STATE].CURRENT_FRAME = (ticks / AnimationSpeed) % STATE[CURRENT_STATE].TOTAL_FRAMES;
     }
 
     SDL_Rect srcrect = STATE[CURRENT_STATE].FRAMES[STATE[CURRENT_STATE].CURRENT_FRAME]; //{ frames * SPRITE_WIDTH, 0, SPRITE_WIDTH, SPRITE_HEIGHT };
     SDL_Rect dstrect = {Position.x - (Size.x *.5), Position.y - (Size.y * .5), Size.x, Size.y};
-   // SDL_RenderCopy(SCREEN->Renderer, SOURCE->SOURCE, &srcrect, &dstrect);
-    SDL_RenderCopyEx(SCREEN->Renderer, SOURCE->SOURCE, &srcrect, &dstrect, Angle, NULL, SDL_FLIP_NONE);
+    SDL_RenderCopy(SCREEN->Renderer, SOURCE->Sheet->ImageTexture, &srcrect, &dstrect);  
 }
 
+
+
+
+//  SDL_RenderCopyEx(SCREEN->Renderer, SOURCE->Sheet->ImageTexture, &srcrect, &dstrect, Angle, NULL, SDL_FLIP_NONE);
+//  SOURCE.Sheet->ImageTexture->Render(Position);
+
 //==================================================================================================================================
-//_______________________________________  Left over helper functions ______________________________________________________________________
+//_______________________________________  Left over helper functions ______________________________________________________________
 //  
 // Possibly add these to a Class later on, These are old from when the code was first wrote months and months ago.
 //==================================================================================================================================
@@ -152,10 +291,7 @@ std::shared_ptr<SpriteSheet> LOAD_SHEET(char *file)
 {
     return std::make_shared<SpriteSheet>(file);
 }
-void DESTROY_SHEET(SpriteSheet *sheet)
-{
-	delete(sheet);
-}
+
 SDL_Rect  MAKE_Rect(int x,int y, int w, int h){
 	SDL_Rect ret;
 		ret.x=x;
@@ -164,7 +300,3 @@ SDL_Rect  MAKE_Rect(int x,int y, int w, int h){
 		ret.w=w;
 return ret;
 }
-
-
-
-

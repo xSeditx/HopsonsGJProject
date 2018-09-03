@@ -17,7 +17,6 @@
 #include<iostream>
 #include<vector>
 
-
 #define __DEBUG_
 
 Window *SCREEN ={0};

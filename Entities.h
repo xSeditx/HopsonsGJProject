@@ -15,21 +15,34 @@ ________________________________________________________________________________
 #include"window.h"
 #include"sprite.h"
 #include"Collision.h"
+#include"Sound.h"
 
 #define SCREEN_BUFFER_AREA  100
 #define MAX_PROJECTILES     100
-
-class Player; class Enemy; class Static; class Entity; class Projectile;
+#define MAX_ENEMIES          50
+#define MAX_STATICOBJECTS    50
 
 extern int Score;
 
-enum  EntityType{
+class Player; class Enemy; class StaticObject; class Entity; class Projectile; class EnemyProjectile;
+
+
+enum  EntityType
+{
     EntityEntity = 0,
     PlayerEntity,
     EnemyEntity,
     StaticEntity,
-    PowerUpEntity
+    PowerUpEntity,
+    ProjectileEntity,
 };
+
+
+/*========================================================================================================================================================================================
+                                                                                                                                                                                      
+                                                    RESPONSE CLASS                                                                                                                                                                                                                                                                                           
+   NOTE: I made this, started to implement it... And never used it Anywhere. Not sure I have time to make it useful but we will see                                                                                                                                                        
+========================================================================================================================================================================================*/
 
 class Response
 {
@@ -55,18 +68,31 @@ public:
         void SetStaticObjectReponse (void (*f) ( Entity *other))     {StaticObjectReponse = f;}
         void SetProjectileReponse   (void (*f) ( Enemy*, Projectile *other)) {ProjectileResponse  = f;}
 };
+
+
+//========================================================================================================================================================================================
+/*                            
+                                                ENTITY CLASS:
+                                        _____________________________
+                              MANAGES THE PLAYER, ENEMIES AND STATIC WORLD OBJECTS.                                                                                               
+                              POSSIBLY ADD THE PROJECTILES INTO THIS IN THE FUTURE.                                                                                               
+    8/27/2018 
+*/
+//========================================================================================================================================================================================
+
+
 class Entity
 {
 public:
         Entity()
         {
-            ID = 0;
+            ID  = 0;
             Age = 0;
         }
             
         Vec2 Position;
         
-        Sprite Image;
+        Sprite Picture;
         
         int ID, Age;
         
@@ -78,11 +104,64 @@ public:
 
         Response CollisionResponse;
 
+        SoundEffect *HitWave;
+        SoundEffect *Ambient;
+        SoundEffect *Death;
 
-        virtual void Kill()                  = 0;
-        virtual void Update()                = 0;
-        virtual void Render()                = 0;
-        virtual void Response(Entity *other) = 0;
+        bool Invincible;
+
+        void (*SpecialUpdate)(Enemy *object); 
+        void SetSpecialUpdate(void(*function)(Enemy *object)){ SpecialUpdate = function;}
+
+    virtual void Kill()                  = 0;
+    virtual void Update()                = 0;
+    virtual void Render()                = 0;
+    virtual void Response(Entity *other) = 0;
+
+
+static void Initialize();
+
+static Player *PlayerOne;
+
+static Enemy  *CthuluEye, 
+              *Dragon;
+
+static StaticObject *Explosion;
+static Projectile   *Bullets;
+
+static EnemyProjectile *FireBall;
+
+};
+
+/*__________________________________________________________________________________________________________________________________________________________________________________________                                                                                                                                            
+========================================================================================================================================================================================*/
+
+
+class Enemy : public Entity                
+{                                          
+    public:
+        Enemy();
+
+        Enemy(Vec2  pos, Vec2 vel, Sprite *img);
+
+        Vec2 Speed;
+
+        int Health;
+
+        int DamagePoints;
+        int Worth;
+
+        void Kill()                     override;
+        void Update()                   override;
+        void Render()                   override;
+        void Response(Entity *other)    override;
+
+    static int Spawn(Vec2 pos, Vec2 vel, Sprite *img);
+    static void Initialize();
+    static Enemy EnemyList[MAX_ENEMIES];
+
+    static std::vector<int> EnemyValidID;
+    static int NumberOfEnemies;
 };
 class Player : public Entity
 {
@@ -97,25 +176,15 @@ class Player : public Entity
 
         int Lives;
 
+        bool Invincible;
+        double InvincibilityTimer;
 
         void Kill()                    override;
         void Update()                  override;
         void Render()                  override;
         void Response(Entity *other)   override;    
                                            
-};         
-class StaticObject : public Entity
-{
-    public:
-        StaticObject(Vec2  pos,  Sprite *img);
-
-
-        void Kill()                    override;
-        void Update()                  override;
-        void Render()                  override;
-        void Response(Entity *other)   override;
-
-};
+};     
 class Powerups : public Entity
 {
     public:
@@ -126,48 +195,90 @@ class Powerups : public Entity
         void Render()                 override;
         void Response(Entity *other)  override;
 };
-class Enemy : public Entity                
-{                                          
-    public:
-        Enemy();
-
-        Enemy(Vec2  pos, Vec2 vel, Sprite *img);
-
-        Vec2 Speed;
-
-        int Health;
-
-        void Kill()                     override;
-        void Update()                   override;
-        void Render()                   override;
-        void Response(Entity *other)    override;
-
-        static int Spawn(Vec2 pos, Vec2 vel, Sprite *img);
-        static void InitializeEnemies();
-
-
-        static Enemy EnemyList[MAX_PROJECTILES];
-        static std::vector<int> EnemyValidID;
-        static int NumberOfEnemies;
-};
 class Projectile : public Entity
 {
 public:
         Projectile(){}
         Projectile(Vec2 pos,Vec2 vel, Sprite *img);
-        
+        ~Projectile()
+        {
+        }
         Vec2 Speed;
+
+        float BulletPower;
+        void Kill()                     override;
+        void Update()                   override;
+        void Render()                   override;
+        void Response(Entity *other)    override;
+
+    static int Spawn(Vec2 pos, Vec2 vel, Projectile *object);
+    static int Spawn(Vec2 pos, Vec2 vel, Sprite *img);
+    static void Initialize();
+    static Projectile ProjectileList[MAX_PROJECTILES];
+    static std::vector<int> ProjectileValidID;
+    static int NumberOfProjectiles;
+};
+class StaticObject : public Entity
+{
+    public:
+        StaticObject();
+        StaticObject(Vec2  pos,  Vec2 vel, Sprite *img);
+
+        double LifeSpan;
+        double Timer;
+
+        Vec2 Speed;
+
+
+
+        void Kill()                    override;
+        void Update()                  override;
+        void Render()                  override;
+        void Response(Entity *other)   override;
+
+    static int Spawn(Vec2 pos, Vec2 vel, double lifespan, Sprite *img);
+    static void Initialize();
+    static StaticObject StaticObjectList[MAX_STATICOBJECTS];
+    static int NumberOfStaticObjectList;
+    static std::vector<int> StaticObjectValidID;
+};
+class EnemyProjectile : public Entity
+{
+public:
+        EnemyProjectile(){}
+        EnemyProjectile(Vec2 pos,Vec2 vel, Sprite *img);
+        ~EnemyProjectile()
+        {
+        }
+        Vec2 Speed;
+        float BulletPower;
 
         void Kill()                     override;
         void Update()                   override;
         void Render()                   override;
         void Response(Entity *other)    override;
 
+    static int Spawn(Vec2 pos, Vec2 vel, EnemyProjectile *object);
+    static int Spawn(Vec2 pos, Vec2 vel, Sprite *img);
 
-        static int Spawn(Vec2 pos, Vec2 vel, Sprite *img);
-        static void InitializeProjectiles();
-
-        static Projectile ProjectileList[MAX_PROJECTILES];
-        static std::vector<int> ProjectileValidID;
-        static int NumberOfProjectiles;
+    static void Initialize();
+    static EnemyProjectile EnemyProjectileList[MAX_PROJECTILES];
+    static std::vector<int> ProjectileValidID;
+    static int NumberOfProjectiles;
 };
+
+
+
+/*========================================================================================================================================================================================
+                                                                                                                             
+                                                GAME MECHANIC STUFF                                                                
+                                                                                                                             
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/                                                                                                                                            
+void BulletHit(Entity *object, Projectile *bullet);
+void DragonUpdate(Enemy *object);
+
+void Default_Response(Entity *other);
+void DefaultEnemyUpdate(Enemy *object);
+
+void EnemyProjectileResponse(Enemy *mob,  Projectile *bullet);
+void DefaultProjectileResponse(Entity *mob,  Projectile *bullet);

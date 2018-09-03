@@ -18,8 +18,8 @@
 #include<functional>
 //#include "Vertex.h"
 #include"windows.h"
-
 #include"GLM.hpp"
+//#include"Fonts.h"
 
 
 typedef glm::vec2 Vec2;
@@ -48,7 +48,7 @@ typedef glm::mat4 Matrix;
 #endif                      
 
 
-#define     Print(x)                  std::cout << (x) << std::endl
+#define     Print(x)                  std::cout << x << std::endl
 #define     GetRandom( min, max )     ((rand() % (int)(((max) + 1) - (min))) + (min))  
 #define     RANDOM(x)                 ((rand() * (1.0 / (1.0 + RAND_MAX))) * (x))
 #define     RANDOM_RANGE(x)           (RANDOM(x * 2) - (x))
@@ -98,7 +98,10 @@ inline float Squared(float x)
 
 
 
-struct Rect{
+
+
+struct Rect
+{
     Rect(){}
     Rect(int X,int Y,int W, int H) 
           :x(X), y(Y), w(W),  h(H) 
@@ -108,23 +111,13 @@ struct Rect{
         h,
         w;
 };
-#ifndef Vec2
-//struct Vec2{
-//    Vec2(){}
-//    Vec2(float X, float Y):x(X),y(Y){}
-//    union{
-//        struct{
-//            float x,y;
-//        };
-//        struct{
-//            float w,h;
-//        };
-//    };
-//};
-#endif
+
+
+
 class CallBack{
     public:
-        CallBack(){
+        CallBack()
+        {
                 
             CallBackOnEvent          = NULL;
             CallBackOnInputFocus     = NULL;

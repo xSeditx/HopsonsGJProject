@@ -19,7 +19,7 @@ Sprite *Plasma;
 World  *GameWorld;
 
 float ShipSpeed = 25;
-Sound *GameSounds;
+//SoundEffect *GameSounds;
 
 
 
@@ -84,14 +84,15 @@ void MouseLClick(int mX, int mY)
 {
     Projectile::Spawn(Vec2(GameWorld->Player1->CollisionBox->Body.Position.x - 20, GameWorld->Player1->CollisionBox->Body.Position.y + 30), Vec2(0, -3), Bullet);
     Projectile::Spawn(Vec2(GameWorld->Player1->CollisionBox->Body.Position.x + 15, GameWorld->Player1->CollisionBox->Body.Position.y + 30), Vec2(0, -3), Bullet);
-    GameSounds->Play(GameSounds->BottleRocket);
+    //GameSounds->Play(GameSounds->BottleRocket);
 }
 void MouseRClick(int mX, int mY)
 {
     if(GameWorld->Player1->EnergyLevel > 0)
     {
         Projectile::Spawn(Vec2(GameWorld->Player1->CollisionBox->Body.Position.x , GameWorld->Player1->CollisionBox->Body.Position.y + 30), Vec2(0, -.2), Plasma );
-        GameSounds->Play(GameSounds->BottleRocket);
+        //GameSounds->Play(GameSounds->BottleRocket);
+        SoundEffect::Boom1->Play();
         GameWorld->Player1->EnergyLevel -= 500;
     }
 }
@@ -106,32 +107,26 @@ void main()
            MainWin.CallBacks.SetOnMouseMove(MouseMove);
            MainWin.CallBacks.SetOnLButtonDown(MouseLClick);
            MainWin.CallBacks.SetOnRButtonDown(MouseRClick);
-
-    VideoCamera *Camera = new VideoCamera(Vec2( 0, 0),Vec2(SCREENWIDTH *.5, SCREENHEIGHT *.5));
-
-    GameWorld = new World(Camera);
+           MainWin.Set_Sync_rate(60);
+    GameWorld = new World();
         
-    Bullet = new Sprite(new SpriteSheet("Bullet.bmp"), 1); 
+    Bullet = new Sprite(new SpriteSheet("Assets\\Bullet.bmp"), 1); 
     Bullet->STATE[0] = State(MAKE_Rect(0, 0,8, 8), 3);
     Bullet->ANIMATED = true;
     Bullet->Size = Vec2(8);
     
-    Plasma = new Sprite(new SpriteSheet("PlasmaBurst.bmp"), 1);
+    Plasma = new Sprite(new SpriteSheet("Assets\\PlasmaBurst.bmp"), 1);
     Plasma->STATE[0] = State(MAKE_Rect(0, 0,35,35), 42);
     Plasma->AnimationSpeed = 10;
     Plasma->ANIMATED = true;
     Plasma->Size = Vec2(35);
     
-    
-
-    FontRender Fonts;
-    Fonts.LoadFont("SpaceAge.ttf");
-
-    GameSounds = new Sound();
-    GameSounds->MusicPlay(GameSounds->BGmusic);
-
+   // GameSounds = new Sound();
+   // GameSounds->MusicPlay(GameSounds->BGmusic);
+    Music::BackgroundMusic->Play();
 
     const char* SayScore = "SCORE: ";
+ //   GameWorld->StartScreen();
 
     while(MainWin.LOOP_GAME())
     {
@@ -139,13 +134,12 @@ void main()
            std::string Str = std::to_string(Score);
             const char* S = Str.c_str();
 
-           Fonts.Write(SayScore,10,10);
-           Fonts.Write(S,160,10);
-
            GameWorld->Update();
            GameWorld->Render();
+           FontRender::Fonts->Write(SayScore,Vec2(10,10));
+           FontRender::Fonts->Write(S, Vec2(160,10));
                        if(Score < 0 ) Score = 0;
         MainWin.SYNC();
-    Print(MainWin.FPS);
+  //  Print(MainWin.FPS);
     }
 }

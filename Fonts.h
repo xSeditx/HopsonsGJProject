@@ -1,8 +1,8 @@
 #pragma once
 #include"window.h"
 #include"SDL_ttf.h"
+#include<string>
 /*
-
 
 FONT RENDERER STARTED. NEED TO PLACE ALL THE GIVEN TEXT INTO A STD::VECTOR SO THAT i CAN ASSIGN IT ONCE 
 AND SPEED UP THE FONT RENDERING PROCESS. 
@@ -14,28 +14,37 @@ ALSO SOME STYLE AND COLOR FUNCTIONALITY
 */
 
 
+//TODO: So much shit to do here. Perhaps make a loader like I did everything else but even that has become a pain in the ass to manage 
+//     even though its extremely easy.
+
+
+
+
+#define OPENING_FONT 0 
+
 class FontRender
 {
 public:
-    FontRender()
+
+
+    FontRender(const char*file)
     {
         if (TTF_Init() < 0) 
         {
             Print("Font Initialization Failed");
-            std::cout << "Error: " << TTF_GetError() << std::endl;
+            Print("Error: " << TTF_GetError());
         }
 
-        CurrentFont = nullptr;
+        CurrentFont = TTF_OpenFont(file, 30);
+
+        if(!CurrentFont)
+        {
+            Print(TTF_GetError);
+        }
     }
 
 
     TTF_Font *CurrentFont;
-
-    void LoadFont(const char*file)
-    {
-        CurrentFont = TTF_OpenFont(file, 30);
-        if(!CurrentFont)Print(TTF_GetError);
-    }
 
     void FreeFont(TTF_Font *font)
     {
@@ -47,7 +56,18 @@ public:
         TTF_Quit();
     }
 
-    void Write(const char *text, int x, int y)
+    void SetSize()
+    {
+        
+    }
+    void Write(float value, Vec2 pos)
+    {
+        std::string Str = std::to_string((int)value);
+        const char* S = Str.c_str();
+
+        Write(S, pos);
+    }
+    void Write(const char *text, Vec2 pos)
     {
         float Width  = 0, 
               Height = 0;
@@ -72,21 +92,33 @@ public:
                  Height = surface->h;
              }
              SDL_FreeSurface( surface );
-
-            //Set rendering space and render to screen
-            SDL_Rect renderQuad = { x, y, Width, Height };
-            SDL_RenderCopy( SCREEN->Renderer, mTexture, NULL, &renderQuad );
-
-            SDL_DestroyTexture(mTexture); 
+             //TTF_Set
+             //Set rendering space and render to screen
+             SDL_Rect renderQuad = { pos.x, pos.y, Width, Height };
+             SDL_RenderCopy( SCREEN->Renderer, mTexture, NULL, &renderQuad );
+             
+             SDL_DestroyTexture(mTexture); 
          }
-
     }
 
-    SDL_Color ForgroundColor, BackgroundColor;
+    int CurrentFontID;
 
+    SDL_Color ForgroundColor, 
+              BackgroundColor;
+    static FontRender *Fonts;
     void SetBackGroundColor(SDL_Color col) {BackgroundColor = col;}
     void SetForgroundColor(SDL_Color col)  {ForgroundColor  = col;}
+
+    float Size;
 };
+
+
+
+
+
+
+
+
 
 
 //SDL_Surface *TTF_RenderGlyph_Solid(TTF_Font* font, Uint16 ch, SDL_Color fg);

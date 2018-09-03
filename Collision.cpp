@@ -283,12 +283,8 @@ void AABB::Update()
 void AABB::Render()
 {
     SDL_SetRenderDrawColor(SCREEN->Renderer,255,0,0,255);
-     SDL_RenderDrawLine(SCREEN->Renderer,
-                      MinPoint.x,
-                      MinPoint.y,
-                      MaxPoint.x,
-                      MaxPoint.y);
-
+    SDL_Rect Box = { MinPoint.x, MinPoint.y,  MaxPoint.x - MinPoint.x, MaxPoint.y -MinPoint.y};
+    SDL_RenderDrawRect(SCREEN->Renderer, &Box);
 }
 void AABB::Sweep() 
  {  

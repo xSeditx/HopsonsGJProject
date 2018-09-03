@@ -3,8 +3,7 @@
 #include"window.h"
 
 
-#define     INFINITE_MASS        0xffffffffffff
-
+#define     INFINITE_MASS        0xFFFFFFFF
 
 
 class Mass
@@ -78,8 +77,9 @@ public:
                 Velocity *= .95f ;         
             
                 Vec2  Last_Acceleration = Acceleration;
-                       Position +=  Velocity *  Mass::Get_Timestep() + (Last_Acceleration * 0.5f * Squared(Mass::Get_Timestep()) );
-                       Acceleration = Force / Kg;
+
+                Position +=  Velocity *  Mass::Get_Timestep() + (Last_Acceleration * 0.5f * Squared(Mass::Get_Timestep()) );
+                Acceleration = Force / Kg;
             
                 Force = Vec2(0.0f);
             
