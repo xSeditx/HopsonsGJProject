@@ -58,6 +58,7 @@ public:
 
 
  static void Initialize();
+ static void Unload();
  static SpriteSheet *Ship,
                     *Eye, 
                     *EnergySpheres,
@@ -66,7 +67,8 @@ public:
                     *Explosion1, 
                     *Cthulu,
                     *Dragon,
-                    *FireBall;
+                    *FireBall,
+                    *GreenEye, *FireOrb, *Lightning01;
 
 };
 
@@ -171,7 +173,8 @@ static Sprite *ShipSprite,
               *Plasma, 
               *Bullet, 
               *DragonSprite,
-              *FireBall;
+              *FireBall, 
+              *GreenEye, *FireOrb, *Lightning01, *CthuluDeath, *BigGun, *BossDragon;
               
 public:
 
@@ -183,6 +186,7 @@ public:
         AABB* MakeCollisionBox();
 
  static void Initialize();
+ static void Unload();
 };
 
 extern SDL_Rect MAKE_Rect(int x,int y, int w, int h);

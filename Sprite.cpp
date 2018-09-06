@@ -23,11 +23,11 @@
               *SpriteSheet::Explosion1,
               *SpriteSheet::Cthulu, 
               *SpriteSheet::FireBall,
-              *SpriteSheet::Dragon;
+              *SpriteSheet::Dragon,
+              *SpriteSheet::FireOrb, 
+              *SpriteSheet::Lightning01;
 
 
-
-  
   Sprite *Sprite::ShipSprite,
          *Sprite::Explosion, 
          *Sprite::DragonSprite,
@@ -35,29 +35,28 @@
          *Sprite::EnergySphere,
          *Sprite::Plasma,
          *Sprite::FireBall,
-         *Sprite::Bullet;
+         *Sprite::Bullet,
+         *Sprite::GreenEye, 
+         *Sprite::FireOrb, 
+         *Sprite::Lightning01,
+         *Sprite::CthuluDeath,
+         *Sprite::BossDragon;
   
+Sprite *Sprite::BigGun;
 
 
- void Sprite::Initialize()
- {
+void Sprite::Initialize()
+{
 
 //======================---~~~  Players Ship  ~~~---=================================
 
-     ShipSprite = new Sprite(SpriteSheet::Ship,1);
+     ShipSprite = new Sprite(SpriteSheet::Ship,4);
      ShipSprite->Size = Vec2(42);
-     ShipSprite->STATE[0] = State(MAKE_Rect(0, 0,42, 42), 3);
+     ShipSprite->STATE[0] = State(MAKE_Rect(0, 0,42, 42), 4);
+     ShipSprite->STATE[1] = State(MAKE_Rect(0, 42,42, 42), 4);
+
      ShipSprite->ANIMATED = true;
      ShipSprite->AnimationSpeed = 100;
-
-//=======================---~~~  Chtulu Eye  ~~~---===================================
-//This is the first one I made, the second one I drew is so so much better so um.... yeah fuck this one
-//     Sprite *TempEyeSprite = new Sprite(SpriteSheet::Eye, 1);
-//             TempEyeSprite->Size = Vec2(42);
-//             TempEyeSprite->STATE[0] = State(MAKE_Rect(0, 0,42, 42), 3);
-//             TempEyeSprite->ANIMATED = true;
-//             TempEyeSprite->AnimationSpeed = 100;
-////     AllSprites.push_back(TempEyeSprite);
 
 //======================---~~~  Standard Bullet  ~~~---===============================
              
@@ -87,13 +86,14 @@
 
 //=======================---~~~  EnergySphere  ~~~---=================================
         EnergySphere = new Sprite(SpriteSheet::EnergySpheres,1);
-        EnergySphere->Size = Vec2(72);
-        
-        EnergySphere->STATE[0]  = State(MAKE_Rect(0,       0, 72, 72), 7);
-        EnergySphere->STATE[0] += State(MAKE_Rect(0,      72, 72, 72), 7);
-        EnergySphere->STATE[0] += State(MAKE_Rect(0, (2 * 72), 72, 72), 7);
-        EnergySphere->STATE[0] += State(MAKE_Rect(0, (2 * 72), 72, 72), 7 );
-        EnergySphere->STATE[0] += State(MAKE_Rect(0, (2 * 72), 72, 72), 7);
+        EnergySphere->Size = Vec2(32);
+        EnergySphere->ANIMATED = true;
+        EnergySphere->AnimationSpeed = 50;
+        EnergySphere->STATE[0]  = State(MAKE_Rect(0,       0,  84, 84), 7);
+        EnergySphere->STATE[0] += State(MAKE_Rect(0,      84,  84, 84), 7);
+        EnergySphere->STATE[0] += State(MAKE_Rect(0, (2 * 84), 84, 84), 7);
+        EnergySphere->STATE[0] += State(MAKE_Rect(0, (2 * 84), 84, 84), 7 );
+        EnergySphere->STATE[0] += State(MAKE_Rect(0, (2 * 84), 84, 84), 7);
 
 
 //=========================---~~~  Cthulu Eye  ~~~---=================================
@@ -103,8 +103,8 @@
         CthuluEye->AnimationSpeed = 150;
         CthuluEye->ANIMATED = true;
         CthuluEye->STATE[0] = State(MAKE_Rect(0,0,32,32),2);
-
-
+        
+        
         DragonSprite = new Sprite(SpriteSheet::Dragon,4);
         DragonSprite->Size = Vec2(64);
         DragonSprite->AnimationSpeed = 150;
@@ -113,15 +113,61 @@
         DragonSprite->STATE[1] = State(MAKE_Rect(0,56,56,56),4);
         DragonSprite->STATE[2] = State(MAKE_Rect(0,112,56,56),4);
         DragonSprite->STATE[3] = State(MAKE_Rect(0,168,56,56),4);
-
-
+        
+        
         FireBall = new Sprite(SpriteSheet::FireBall,1);
         FireBall->Size = Vec2(16);
         FireBall->ANIMATED = true;
         FireBall->AnimationSpeed = 50;
         FireBall->STATE[0] = State(MAKE_Rect(0,0,16,16),3);
- }
- void SpriteSheet::Initialize()
+        
+        GreenEye = new Sprite(new SpriteSheet("Assets\\Tenticles.bmp"),3);
+        GreenEye->Size = Vec2(100);
+        GreenEye->ANIMATED = true;
+        GreenEye->AnimationSpeed = 100;
+        GreenEye->STATE[0] = State(MAKE_Rect(0,113,88,112),6);
+        GreenEye->STATE[1] = State(MAKE_Rect(0,0,88,112),6); 
+        GreenEye->STATE[2] = State(MAKE_Rect(264,0,88,112),3);
+        GreenEye->CURRENT_STATE = 0;
+        
+        FireOrb = new Sprite(new SpriteSheet("Assets\\FireOrb.bmp"), 2);
+        FireOrb->Size = Vec2(42);
+        FireOrb->ANIMATED = true;
+        FireOrb->AnimationSpeed = 30;
+        FireOrb->STATE[0] = State(MAKE_Rect(0,0,47,47),5);
+        FireOrb->STATE[1] = State(MAKE_Rect(0,47,47,47),5); 
+
+        Lightning01 = new Sprite(new SpriteSheet("Assets\\Lightning1.bmp"), 1);
+        Lightning01->Size = Vec2(90);
+        Lightning01->ANIMATED = true;
+        Lightning01->AnimationSpeed = 50;
+        Lightning01->STATE[0] = State(MAKE_Rect(0,0,90,90),4);
+//64x70
+        CthuluDeath = new Sprite(new SpriteSheet("Assets\\RedExplosion.bmp"),1);
+        CthuluDeath->Size = Vec2(64);
+        CthuluDeath->ANIMATED = true;
+        CthuluDeath->AnimationSpeed = 100;
+        CthuluDeath->STATE[0] = State(MAKE_Rect(0,0,64,70),4);
+        CthuluDeath->STATE[0] += State(MAKE_Rect(0,70,64,70),4);
+        CthuluDeath->STATE[0] += State(MAKE_Rect(0,140,64,70),4);
+        CthuluDeath->STATE[0] += State(MAKE_Rect(0,210,64,70),4);
+
+        BigGun = new Sprite(new SpriteSheet("Assets\\BigGun.bmp"),1);
+        BigGun->Size = Vec2(64);//76x84
+        BigGun->ANIMATED = false;
+        BigGun->AnimationSpeed = 0;
+        BigGun->STATE[0] = State(MAKE_Rect(0,0,76,84),1);
+
+        BossDragon = new Sprite(new SpriteSheet("Assets\\BlueDragon.BMP"),4);
+        BossDragon->STATE[0] = State(MAKE_Rect(0,0,96,96), 4);
+        BossDragon->Size = Vec2(128);
+        BossDragon->ANIMATED = true;
+        BossDragon->STATE[1] = State(MAKE_Rect(0,96,96,96), 4);
+        BossDragon->STATE[2] = State(MAKE_Rect(0,96*2,96,96), 4);
+        BossDragon->STATE[3] = State(MAKE_Rect(0,96*3,96,96), 4);
+
+}
+void SpriteSheet::Initialize()
 {
        Eye           = new SpriteSheet("Assets\\Eye.bmp");
        Ship          = new SpriteSheet("Assets\\Ship.bmp");
@@ -134,8 +180,31 @@
        FireBall      = new SpriteSheet("Assets\\Fireball.bmp");
 }
 
-
-
+void SpriteSheet::Unload()
+{
+   delete(Eye           );
+   delete(Ship          );
+   delete(EnergySpheres );
+   delete(Bullet        );
+   delete(PlasmaBurst   );
+   delete(Explosion1    );
+   delete(Dragon        );
+   delete(Cthulu        );
+   delete(FireBall      );
+}
+void Sprite::Unload()
+{
+    delete(ShipSprite);
+    delete(Explosion);
+    delete(DragonSprite);
+    delete(CthuluEye);
+    delete(EnergySphere);
+    delete(Plasma);
+    delete(FireBall);
+    delete(Bullet);
+    delete(GreenEye);
+    delete(FireOrb);
+}
 
 
 Image::Image(const char *file)
@@ -171,8 +240,8 @@ void Image::Render(Vec2 position)
 }
 void Image::Render(Vec2 position, Vec2 size)
 {
-    SDL_Rect srcrect = {0, 0, Size.x, Size.y}; 
-    SDL_Rect dstrect = {position.x, position.y , position.x + size.x, position.y + size.y};
+    SDL_Rect srcrect = {0, 0, size.x, size.y}; 
+    SDL_Rect dstrect = {position.x, position.y ,  size.x,size.y};
     SDL_RenderCopy(SCREEN->Renderer, ImageTexture, &srcrect, &dstrect);
 }
 
@@ -207,7 +276,7 @@ State::State(SDL_Rect srcrect,uint numframes)
 {
         CURRENT_FRAME = 0;
     	FRAMES.reserve(numframes);
-    	uint x = 0;
+    	uint x = srcrect.x;
     	for_loop(Count, numframes)
         {
     		    SDL_Rect frame;

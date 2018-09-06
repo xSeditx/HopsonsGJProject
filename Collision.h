@@ -5,7 +5,7 @@
 #include"Physics.h"
 
 
-#define DEBUG_COLLISIONBOX  0
+#define DEBUG_COLLISIONBOX  1
 
 
 

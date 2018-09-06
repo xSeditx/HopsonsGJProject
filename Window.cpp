@@ -127,8 +127,8 @@ WIN_HWND = systemInfo.info.win.window;
 
 
 
-       SDL_SetRenderDrawColor (Renderer, 0,0,155,255);
-       
+//       SDL_SetRenderDrawColor (Renderer, 0,0,155,255);
+    SDL_SetRenderDrawColor (Renderer, 0, 0, 0,255);     
     SetActiveWindow(this);
 
     Event.syswm.msg = nullptr;
@@ -165,15 +165,15 @@ float delta = SDL_GetTicks() - TIMER;
 void Window::SYNC()
 {
 
-        float delta = SDL_GetTicks() - TIMER;
+ // float delta = SDL_GetTicks() - TIMER;
 
         // This was when I was drawing all pixels to a Texture on the screen, I might go back to that.
 
     	//SDL_UpdateTexture(BackBuffer, NULL, WindowPixels, WIDTH * sizeof(Uint32)); // SLOW
         //SDL_RenderCopy(Renderer, BackBuffer, NULL, NULL);
         SDL_RenderPresent(Renderer);
-
 }
+
 bool Window::LOOP_GAME()
  {
      	CYCLE_COUNTER++;
