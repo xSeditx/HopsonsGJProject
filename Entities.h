@@ -18,12 +18,20 @@ ________________________________________________________________________________
 #include"Sound.h"
 
 #define SCREEN_BUFFER_AREA  100
-#define MAX_PROJECTILES     300
+#define MAX_PROJECTILES     400
 #define MAX_ENEMIES          150
 #define MAX_STATICOBJECTS    150
 #define MAX_POWERUPS         150
 
-class Player; class Enemy; class StaticObject; class Entity; class Projectile; class EnemyProjectile; class Powerup;
+
+#define BOSSDRAGON_MAXLIFE  10000.0f
+class Player; 
+class Enemy; 
+class StaticObject; 
+class Entity; 
+class Projectile; 
+class EnemyProjectile; 
+class Powerup;
 
 
 enum  EntityType
@@ -143,7 +151,7 @@ class Enemy : public Entity
     public:
         Enemy();
 
-        Enemy(Vec2  pos, Vec2 vel, Sprite *img);
+        Enemy(Vec2  pos, Vec2 vel, Sprite img);
 
         Vec2 Speed;
 
@@ -151,13 +159,13 @@ class Enemy : public Entity
 
         int DamagePoints;
         int Worth;
-
+        int MovementTimer;
         void Kill()                     override;
         void Update()                   override;
         void Render()                   override;
         void Response(Entity *other)    override;
 
-    static int Spawn(Vec2 pos, Vec2 vel, Sprite *img);
+    static int Spawn(Vec2 pos, Vec2 vel, Sprite img);
     static void Initialize();
     static Enemy EnemyList[MAX_ENEMIES];
 
@@ -184,29 +192,12 @@ class Player : public Entity
 
         int NumberOfKills;
 
-        class Gun
-        {
-            int BulletPower;
-            Sprite *Picture;
-            Projectile *Bullet;
-            enum GunType
-            {
-                Single,
-                Double,
-                Triple,
-                Wave,
-                Laser,
-                Machine,
-            };
-        };
-
-
         void Kill()                    override;
         void Update()                  override;
         void Render()                  override;
         void Response(Entity *other)   override;    
-                                           
 };     
+
 class Powerup : public Entity
 {
     public:
@@ -230,13 +221,13 @@ class Powerup : public Entity
 
     void SetSpecialEffect(void(*f)(void)) { SpecialEffect = f;}
  
-static void EnergyPowerup()
+    static void EnergyPowerup()
     {
         Entity::PlayerOne->EnergyLevel = 100;
-
+    
         SoundEffect::Beep01->Play();
     }
-static void HealthPowerup()
+    static void HealthPowerup()
     {
         Entity::PlayerOne->Health += 10;
         SoundEffect::LaserTail0004->Play();
@@ -245,10 +236,11 @@ static void HealthPowerup()
             Entity::PlayerOne->Health = 100;
         }
     }
-static void Nuke()
+    static void ExtraLife()
     {
-        //Kill Every Enemy on the Screen.
+        Player::PlayerOne->Lives++;
     }
+    static void Nuke();
 
 };
 class Projectile : public Entity
@@ -278,44 +270,34 @@ class StaticObject : public Entity
 {
     public:
         StaticObject();
-        StaticObject(Vec2  pos,  Vec2 vel, Sprite *img);
+        StaticObject(Vec2  pos,  Vec2 vel, Sprite img);
+
+        Sprite Picture;
 
         double LifeSpan;
         double Timer;
 
         Vec2 Speed;
 
-
-
         void Kill()                    override;
         void Update()                  override;
         void Render()                  override;
         void Response(Entity *other)   override;
 
-    static int Spawn(Vec2 pos, Vec2 vel, double lifespan, Sprite *img);
-    static void Initialize();
-    static StaticObject StaticObjectList[MAX_STATICOBJECTS];
-    static int NumberOfStaticObjectList;
-    static std::vector<int> StaticObjectValidID;
+ static int Spawn(Vec2 pos, Vec2 vel, double lifespan, Sprite img);
+ static void Initialize();
+ static StaticObject StaticObjectList[MAX_STATICOBJECTS];
+ static int NumberOfStaticObjectList;
+ static std::vector<int> StaticObjectValidID;
 };
 class EnemyProjectile : public Entity
 {
 public:
         EnemyProjectile(){}
         EnemyProjectile(Vec2 pos,Vec2 vel, Sprite *img);
-
-// This failed and should prob be removed 
-//EnemyProjectile(const EnemyProjectile &other)
-//{
-//    EnemyProjectile *copy = new EnemyProjectile();
-//    *copy = other;
-//    *this = *copy;
-//}
-        ~EnemyProjectile()
-        {
-        }
+       ~EnemyProjectile(){}
         
-        Vec2 Speed;
+        Vec2  Speed;
         float BulletPower;
 
         void Kill()                     override;
@@ -323,13 +305,13 @@ public:
         void Render()                   override;
         void Response(Entity *other)    override;
 
-    static int Spawn(Vec2 pos, Vec2 vel, EnemyProjectile *object);
-    static int Spawn(Vec2 pos, Vec2 vel, Sprite *img);
-
-    static void Initialize();
-    static EnemyProjectile EnemyProjectileList[MAX_PROJECTILES];
-    static std::vector<int> ProjectileValidID;
-    static int NumberOfProjectiles; // This shit will cause conflict if its ever read as Entity and had to be sorted out I think
+ static int Spawn(Vec2 pos, Vec2 vel, EnemyProjectile *object);
+ static int Spawn(Vec2 pos, Vec2 vel, Sprite *img);
+ 
+ static void Initialize();
+ static EnemyProjectile EnemyProjectileList[MAX_PROJECTILES];
+ static std::vector<int> ProjectileValidID;
+ static int NumberOfProjectiles; // This shit will cause conflict if its ever read as Entity and had to be sorted out I think
 };
 
 
@@ -349,3 +331,5 @@ void DefaultEnemyUpdate(Enemy *object);
 
 void EnemyProjectileResponse(Enemy *mob,  Projectile *bullet);
 void DefaultProjectileResponse(Entity *mob,  Projectile *bullet);
+
+void BossDragon(Enemy *object);

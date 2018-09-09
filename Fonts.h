@@ -42,7 +42,21 @@ public:
             Print(TTF_GetError);
         }
     }
+    FontRender(const char*file, int size)
+    {
+        if (TTF_Init() < 0) 
+        {
+            Print("Font Initialization Failed");
+            Print("Error: " << TTF_GetError());
+        }
 
+        CurrentFont = TTF_OpenFont(file, size);
+
+        if(!CurrentFont)
+        {
+            Print(TTF_GetError);
+        }
+    }
 
     TTF_Font *CurrentFont;
 
@@ -50,12 +64,10 @@ public:
     {
         TTF_CloseFont(font);
     }
-
     void CloseFontRender()
     {
         TTF_Quit();
     }
-
     void SetSize()
     {
         
@@ -99,6 +111,42 @@ public:
              
              SDL_DestroyTexture(mTexture); 
          }
+    }
+
+
+    void WriteShadow(const char *text, Vec2 pos, int depth)
+    {
+        SDL_Color savedcol = ForgroundColor; 
+
+        SetForgroundColor(100,100,100, 255);
+        Write(text, Vec2(pos.x + depth, pos.y + depth));
+
+        SetForgroundColor(savedcol.r, savedcol.g, savedcol.b, savedcol.a);
+        Write(text, pos);
+    }
+    void WriteShadow(float value, Vec2 pos, int depth)
+    {
+        SDL_Color savedcol = ForgroundColor; 
+
+        SetForgroundColor(100,100,100, 255);
+        std::string Str = std::to_string((int)value);
+        const char* S = Str.c_str();
+        Write(S, Vec2(pos.x + depth, pos.y + depth));
+
+        SetForgroundColor(savedcol.r, savedcol.g, savedcol.b, savedcol.a);
+        Str = std::to_string((int)value);
+        S = Str.c_str();
+        Write(S, pos);
+    }
+
+
+
+    void SetForgroundColor(float R, float G, float B, float A)
+    {
+        ForgroundColor.r = R;
+        ForgroundColor.g = G;
+        ForgroundColor.b = B;
+        ForgroundColor.a = A;
     }
 
     int CurrentFontID;

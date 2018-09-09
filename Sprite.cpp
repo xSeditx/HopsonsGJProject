@@ -14,8 +14,24 @@
 #include"Sprite.h"
 #include<memory>
 
+// VERY RARE AND OCCASIONAL ERROR UPON LOADING 
+//  00EF836F  int         3  
+//  __unwindfunclet$??0SpriteSheet@@QAE@PAD@Z$0:
+//  00EF8370  mov         eax,dword ptr [ebp-0E0h]  
+//  00EF8376  push        eax  
+//  00EF8377  call        operator delete (0EBE6D1h)  
+//  00EF837C  pop         ecx  
+//  00EF837D  ret  
+//  __ehhandler$??0SpriteSheet@@QAE@PAD@Z:
+//  00EF837E  mov         edx,dword ptr [esp+8]  <---- Here is the Final Line of code
+//  00EF8382  lea         eax,[edx+0Ch]  
+//  00EF8385  mov         ecx,dword ptr [edx-0F8h]  
+//  The error is Occuring in d3d9.dll calling igdumd32.dll but I believe the later is just an error handler.
+//  	d3d9.dll!00c98c27()	Unknown <- Last Function on the callstack.
+// I believe it has something to do with some sort of conflict as the program is loading and the
+// threads are fighting over resources but I am not really sure and do not have time to figure it out
 
-  SpriteSheet *SpriteSheet::Ship,
+SpriteSheet *SpriteSheet::Ship,
               *SpriteSheet::Eye, 
               *SpriteSheet::EnergySpheres, 
               *SpriteSheet::Bullet,
@@ -40,14 +56,16 @@
          *Sprite::FireOrb, 
          *Sprite::Lightning01,
          *Sprite::CthuluDeath,
-         *Sprite::BossDragon;
+         *Sprite::BossDragon,
+         *Sprite::HealthPowerup,
+         *Sprite::ExtraLife, 
+         *Sprite::GreenFireBall;
   
 Sprite *Sprite::BigGun;
 
 
 void Sprite::Initialize()
 {
-
 //======================---~~~  Players Ship  ~~~---=================================
 
      ShipSprite = new Sprite(SpriteSheet::Ship,4);
@@ -147,7 +165,7 @@ void Sprite::Initialize()
         CthuluDeath->Size = Vec2(64);
         CthuluDeath->ANIMATED = true;
         CthuluDeath->AnimationSpeed = 100;
-        CthuluDeath->STATE[0] = State(MAKE_Rect(0,0,64,70),4);
+        CthuluDeath->STATE[0]  = State(MAKE_Rect(0,0,64,70),4);
         CthuluDeath->STATE[0] += State(MAKE_Rect(0,70,64,70),4);
         CthuluDeath->STATE[0] += State(MAKE_Rect(0,140,64,70),4);
         CthuluDeath->STATE[0] += State(MAKE_Rect(0,210,64,70),4);
@@ -165,6 +183,35 @@ void Sprite::Initialize()
         BossDragon->STATE[1] = State(MAKE_Rect(0,96,96,96), 4);
         BossDragon->STATE[2] = State(MAKE_Rect(0,96*2,96,96), 4);
         BossDragon->STATE[3] = State(MAKE_Rect(0,96*3,96,96), 4);
+
+        float A = 20;
+        HealthPowerup = new Sprite(new SpriteSheet("Assets\\HealthPowerup.bmp"),1);
+        HealthPowerup->Size = Vec2(34);
+        HealthPowerup->ANIMATED = true;
+        HealthPowerup->AnimationSpeed = 50;
+        HealthPowerup->STATE[0] =  State(MAKE_Rect(0,0,A,A), 4);
+        HealthPowerup->STATE[0] += State(MAKE_Rect(0,A+1,A,A), 4);
+        HealthPowerup->STATE[0] += State(MAKE_Rect(0,(A+1)*2,A,A), 4);
+        HealthPowerup->STATE[0] += State(MAKE_Rect(0,(A+1)*3,A,A), 4);
+
+
+
+        ExtraLife = new Sprite(new SpriteSheet("Assets\\ExtraLife.bmp"),1);
+        ExtraLife->Size = Vec2(34);
+        ExtraLife->ANIMATED = false;
+
+        ExtraLife->AnimationSpeed = 0;
+        ExtraLife->STATE[0] =  State(MAKE_Rect(0,0,160,160), 1);
+
+
+        GreenFireBall = new Sprite(new SpriteSheet("Assets\\GreenFireBall.bmp"));
+        GreenFireBall->ANIMATED = true;
+        GreenFireBall->Size = Vec2(64);
+        GreenFireBall->AnimationSpeed = 50;
+
+        GreenFireBall->STATE[0]  = State(MAKE_Rect(0,   0, 64, 64), 3);
+        GreenFireBall->STATE[0] += State(MAKE_Rect(0,  64, 64, 64), 3);
+        GreenFireBall->STATE[0] += State(MAKE_Rect(0, 128, 64, 64), 3);
 
 }
 void SpriteSheet::Initialize()
@@ -300,7 +347,7 @@ AABB* Sprite::MakeCollisionBox()
 {
     //IDK WTF TO DO WITH THIS AT THE MOMENT
     //SDL_Rect dstrect = {Position.x - (Size.x *.5), Position.y - (Size.y * .5), Size.x, Size.y}
-    return new AABB(Position, Size *.5f);
+    return new AABB(Position, ((Size * .8f) *.5f)) ;
 }
 
 //==================================================================================================================================
@@ -340,7 +387,9 @@ void Sprite::Render()
 
     SDL_Rect srcrect = STATE[CURRENT_STATE].FRAMES[STATE[CURRENT_STATE].CURRENT_FRAME]; //{ frames * SPRITE_WIDTH, 0, SPRITE_WIDTH, SPRITE_HEIGHT };
     SDL_Rect dstrect = {Position.x - (Size.x *.5), Position.y - (Size.y * .5), Size.x, Size.y};
-    SDL_RenderCopy(SCREEN->Renderer, SOURCE->Sheet->ImageTexture, &srcrect, &dstrect);  
+//    SDL_RenderCopy(SCREEN->Renderer, SOURCE->Sheet->ImageTexture, &srcrect, &dstrect);  
+    SDL_Point Center = {Size.x / 2,Size.y/2};
+    SDL_RenderCopyEx(SCREEN->Renderer, SOURCE->Sheet->ImageTexture ,  &srcrect, &dstrect, Angle, &Center,SDL_RendererFlip(0));
 }
 
 

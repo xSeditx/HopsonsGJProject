@@ -75,14 +75,23 @@ Window::Window(int x,int y,int width,int height,char *title)
                                            SDL_WINDOWPOS_UNDEFINED, 
                                            WIDTH, 
                                            HEIGHT, 0); 
-        if(!SDL_HWND) Print("ERROR: Initializing SDL Window");
+        if(!SDL_HWND)
+        {
+            Print("ERROR: Initializing SDL Window");
+            exit(0);
+        }
+
 
 
         Renderer = SDL_CreateRenderer(SDL_HWND, -1, SDL_RENDERER_ACCELERATED);                                                          
         
         if(!Renderer) Print("ERROR: Initializing SDL Renderer");
             
-        if(SDL_SetRenderDrawColor(Renderer, 0, 0, 0, 255) != 0) Print("Set Color Error");
+        if(SDL_SetRenderDrawColor(Renderer, 0, 0, 0, 255) != 0)
+        {
+            Print("Set Color Error");
+            exit(0);
+        }
         
         BackBuffer = SDL_CreateTexture(Renderer,
                                        SDL_PIXELFORMAT_ARGB8888, 
@@ -92,7 +101,7 @@ Window::Window(int x,int y,int width,int height,char *title)
 
         SDL_SetRenderTarget(Renderer, BackBuffer);
 
-        SDL_SetWindowResizable(SDL_HWND, SDL_TRUE);
+//        SDL_SetWindowResizable(SDL_HWND, SDL_TRUE);
         
         WindowSurface   = SDL_GetWindowSurface     (SDL_HWND);
         WindowFormat    = SDL_GetWindowPixelFormat (SDL_HWND);
@@ -135,7 +144,11 @@ WIN_HWND = systemInfo.info.win.window;
     SDL_EventState(SDL_SYSWMEVENT, SDL_ENABLE);
     OldMouseX =0;
     OldMouseY =0;
+
+    SDL_SetWindowResizable(SDL_HWND,SDL_FALSE);
 }
+
+
 bool SetActiveWindow(Window *active)
 {
 	if(SCREEN = active)
@@ -421,6 +434,10 @@ void Window::FILLED_CIRCLE(int x, int y, float radius){
        }
      }
 }
+
+
+
+
 void Window::LINE2(int x,int y, float Angle,int Length){
          float Xpos = x,Ypos = y; 
          unsigned long color = SCREEN->DRAW_COLOR;

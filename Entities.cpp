@@ -2,7 +2,10 @@
 #include"Fonts.h"
 #include"World.h"
  
-
+#define FORWARD       0
+#define BACKWARDS     3
+#define LEFT          1
+#define RIGHT         2
 /*========================================================================================================================================================================================
                                                                                                                                                                                       
                                                     STATIC DEFINITIONS                                                                                                                                                                                                                                                                                           
@@ -68,23 +71,52 @@ ________________________________________________________________________________
 NOTES: Various different mechanics for the Behaviors of different Enemies and Entitys this allows for overiding of the Update() method
    Allowing me to specify direct mechanics for every different sprite if I wish.
 ========================================================================================================================================================================================*/
+void Powerup::Nuke()
+{
+    for(auto &object : Enemy::EnemyList)
+    {
+        if(object.Alive)
+        {
+            Entity::PlayerOne->NumberOfKills++;
+            Entity::PlayerOne->Score+=object.Worth;
+            
+            StaticObject::Spawn(object.Position, Vec2(0), 1000, *Sprite::Explosion);
+            SoundEffect::Boom5->Play();
+            object.Kill();
+        }
+    }
+}
 void SpawnDrop(Vec2 pos)
 {
 // Go from Lowest to Highest to get accurate spawn rate
-           if(RANDOM(100) > 95) // Spawn a random drop of 95% Enegy Sphere
-           {
-               int Index = Powerup::Spawn(pos,Vec2(0, 1), Sprite::EnergySphere );
-               Powerup::PowerupList[Index].SetSpecialEffect(Powerup::HealthPowerup);
-           }
-           if(RANDOM(100) > 10) // Spawn a random drop of 95% Enegy Sphere
-           {
-               int Index = Powerup::Spawn(pos, Vec2(0), Sprite::FireOrb);
-               Powerup::PowerupList[Index].SetSpecialEffect(Powerup::EnergyPowerup);
-           }
-}
 
-void BulletHit(Entity *object, Projectile *bullet)
-{
+    if(RANDOM(100) > 99) // Spawn a random drop of 1% of NUKE
+    {
+        int Index = Powerup::Spawn(pos, Vec2(0), Sprite::FireOrb);
+        Powerup::PowerupList[Index].SetSpecialEffect(Powerup::Nuke);
+        return;
+    }
+
+    if(RANDOM(100) > 95) // Spawn a random drop of 5% Health Sphere
+    {
+        int Index = Powerup::Spawn(pos,Vec2(0, 1), Sprite::EnergySphere );
+        Powerup::PowerupList[Index].SetSpecialEffect(Powerup::HealthPowerup);
+        return;
+    }
+    if(RANDOM(100) > 10) // Spawn a random drop of 90% Enegy Sphere
+    {
+        int Index = Powerup::Spawn(pos, Vec2(0), Sprite::HealthPowerup);
+        Powerup::PowerupList[Index].SetSpecialEffect(Powerup::EnergyPowerup);
+        return;
+    }
+    if(RANDOM(100) > 99) // Spawn a random drop of 1% of NUKE
+    {
+        int Index = Powerup::Spawn(pos, Vec2(0), Sprite::ExtraLife);
+        Powerup::PowerupList[Index].SetSpecialEffect(Powerup::ExtraLife);
+        SoundEffect::Extralife->Play();
+        return;
+    }
+
 }
 void DragonUpdate(Enemy *object)
 {
@@ -100,7 +132,8 @@ void DragonUpdate(Enemy *object)
 // This Spawns a Fireball out of the Dragons Mouth Every 100 Frames. Going to make this a Tad Bit Random
         if(object->Age % 100 == 0) 
         {
-             EnemyProjectile::Spawn(object->Position,Vec2(0, 3) , Sprite::FireBall);
+             int Index = EnemyProjectile::Spawn(object->Position,Vec2(0, 3) , Sprite::FireBall);
+             EnemyProjectile::EnemyProjectileList[Index].BulletPower = 10;
         }
  //   Projectile::Spawn(Vec2(GameWorld->Player1->CollisionBox->Body.Position.x + 15,
  //              GameWorld->Player1->CollisionBox->Body.Position.y + 30), Vec2(0, -3), Bullet);
@@ -119,7 +152,7 @@ void DragonUpdate(Enemy *object)
            Entity::PlayerOne->NumberOfKills++;
            Entity::PlayerOne->Score+=object->Worth;
 
-           StaticObject::Spawn(object->Position, Vec2(0), 1000, Sprite::Explosion);
+           StaticObject::Spawn(object->Position, Vec2(0), 1000, *Sprite::Explosion);
 
            SoundEffect::Boom5->Play();
 
@@ -133,8 +166,6 @@ void DragonUpdate(Enemy *object)
        }
     }
 }
-
-
 void DiveBomber(Enemy *object) // This is the Green Eye Currently
 {
     float DiveTimer = 0;
@@ -149,14 +180,12 @@ void DiveBomber(Enemy *object) // This is the Green Eye Currently
                 object->CollisionBox->Update();
                 object->Position = object->CollisionBox->Position;
                 object->Picture.Position =  object->Position;
-// This         Spawns a Fireball out of the Dragons Mouth Every 100 Frames. Going to make this a Tad Bit Random
+// This Spawns a Fireball out of the Dragons Mouth Every 100 Frames. Going to make this a Tad Bit Random
                 if(object->Age % 100 == 0) 
                 {
-                     //EnemyProjectile::Spawn(object->Position,Vec2(0, 3) , Sprite::FireBall);
                     object->Picture.CURRENT_STATE = 1;
                     DiveTimer = SDL_GetTicks();
                 }
-
             break;
 
             case 1:
@@ -171,7 +200,7 @@ void DiveBomber(Enemy *object) // This is the Green Eye Currently
 
             break;
             case 2:
-                object->CollisionBox->Body.Velocity = Vec2(0,3);
+                object->CollisionBox->Body.Velocity = Vec2(0,6);
                 object->CollisionBox->Update();
                 object->Position = object->CollisionBox->Position;
                 object->Picture.Position =  object->Position;
@@ -198,7 +227,7 @@ void DiveBomber(Enemy *object) // This is the Green Eye Currently
            Entity::PlayerOne->Score+=object->Worth;
 
 
-           StaticObject::Spawn(object->Position, Vec2(0), 1000, Sprite::Explosion);
+           StaticObject::Spawn(object->Position, Vec2(0), 1000, *Sprite::Explosion);
            SpawnDrop(object->Position);
            SoundEffect::Boom5->Play();
 
@@ -237,7 +266,7 @@ void DefaultEnemyUpdate(Enemy *object)
            Entity::PlayerOne->Score+=object->Worth;
 
         //   StaticObject::Spawn(object->Position, Vec2(0), 1000, Sprite::Explosion);
-           StaticObject::Spawn(object->Position, Vec2(0, -.3), 1000, Sprite::CthuluDeath);
+           StaticObject::Spawn(object->Position, Vec2(0, -.3), 1000, *Sprite::CthuluDeath);
           // if(RANDOM(100) > 10) // Spawn a random drop of 95% Enegy Sphere
           // {
           //     Powerup::Spawn(object->Position, Vec2(0), Sprite::FireOrb);
@@ -249,6 +278,141 @@ void DefaultEnemyUpdate(Enemy *object)
        }
     }
 }   
+void BossDragon(Enemy *object)
+{
+    if(object->Alive)
+    {
+        Vec2 DirectionMoving;
+// This Spawns a Fireball out of the Dragons Mouth Every 100 Frames. Going to make this a Tad Bit Random
+        object->MovementTimer--;
+
+// MAKE A CHOICE AS TO WHICH DIRECTION TO MOVE AND HOW LONG TO GO THAT DIRECTION
+        float S = 0.2f;
+        int Choice = (int)(RANDOM(4));
+        if(object->MovementTimer <= 0) 
+        {
+            switch(Choice)
+            {
+                case FORWARD:
+                    object->Speed = Vec2(0, S);
+                    object->Picture.CURRENT_STATE = FORWARD;
+                    object->MovementTimer = RANDOM(50);
+                break;
+                case BACKWARDS:
+                    object->Speed = Vec2(0,-S);
+                    object->Picture.CURRENT_STATE = BACKWARDS;
+                    object->MovementTimer = RANDOM(50);
+                break;
+                case LEFT:
+                    object->Speed = Vec2(-S*2, 0);
+                    object->Picture.CURRENT_STATE = LEFT;
+                    object->MovementTimer = RANDOM(150);
+                break;
+                case RIGHT:
+                    object->Speed = Vec2( S*2, 0);
+                    object->Picture.CURRENT_STATE = RIGHT;
+                    object->MovementTimer = RANDOM(150);
+                break;
+            }
+        }
+
+// CLAMP THE POSITION OF THE DRAGON TO THE SCREEN SO HE DOES NOT GO TO FAR AWAY
+        if(object->Position.x <= (0 + (object->Picture.Size.x * .05f)))  // Went to far Left turn Right
+        {
+            object->Picture.CURRENT_STATE = 2;
+            Choice = RIGHT;
+            object->Speed = Vec2( 1.0f, 0);
+        }
+        else if(object->Position.x >= (SCREENWIDTH - (object->Picture.Size.x * .05f))) // Went to far Right turn left
+        {
+            object->Picture.CURRENT_STATE = 1;
+            Choice = LEFT;
+            object->Speed = Vec2(-1.0f, 0);
+        }
+        
+        if(object->Position.y <= (0 + (object->Picture.Size.y * .05f)))  // Went to high up face down
+        {
+            object->Speed = Vec2(0, 1.0f);
+            Choice = FORWARD;
+            object->Picture.CURRENT_STATE = 0;
+        }
+        else if(object->Position.y >= ((SCREENHEIGHT * 0.5f) - (object->Picture.Size.y * .05f)))  // Went to far down some other way
+        {
+            object->Picture.CURRENT_STATE = 3;
+            Choice = BACKWARDS;
+            object->Speed = Vec2(0,-1.0f);
+        }
+       
+
+// IF ENEMY IS DEAD AWARD THE PLAYER THE POINTS FOR IT AND SPAWN AN EXPLOSION SPRITE
+       if (object->Health <= 0)
+       {
+               Entity::PlayerOne->NumberOfKills++;
+               Entity::PlayerOne->Score+=object->Worth;
+               
+               StaticObject::Spawn(object->Position, Vec2(0), 1000, *Sprite::Explosion);
+               
+               SoundEffect::Boom5->Play();
+               SpawnDrop(object->Position);
+               object->Kill(); // Despawn Enemy
+           return;
+       }
+
+// SPAWN THE FIRE BALLS AND ROTATE THEM FOR THE DIRECTION THE DRAGON IS CURRENTLY FACING
+       int Index = 0;
+       if(object->Age % 100 == 0) 
+       {
+            switch(Choice)
+            {
+                case LEFT:
+                    Index = EnemyProjectile::Spawn(object->Position, Vec2(-4,0), Sprite::GreenFireBall);
+                    EnemyProjectile::EnemyProjectileList[Index].Picture.Angle = 180 ;
+                    EnemyProjectile::EnemyProjectileList[Index].BulletPower = 20;
+                break;
+                case RIGHT:
+                    Index = EnemyProjectile::Spawn(object->Position,  Vec2(4,0), Sprite::GreenFireBall);
+                    EnemyProjectile::EnemyProjectileList[Index].Picture.Angle =  0;
+                    EnemyProjectile::EnemyProjectileList[Index].BulletPower = 20;
+                break;
+                case FORWARD: 
+                    Index = EnemyProjectile::Spawn(object->Position, Vec2(0,4), Sprite::GreenFireBall);
+                    EnemyProjectile::EnemyProjectileList[Index].Picture.Angle =  90;
+                    EnemyProjectile::EnemyProjectileList[Index].BulletPower = 20;
+
+                break;
+                case BACKWARDS:
+                    Index = EnemyProjectile::Spawn(object->Position, Vec2(0,-4), Sprite::GreenFireBall);
+                    EnemyProjectile::EnemyProjectileList[Index].Picture.Angle =  270;
+                    EnemyProjectile::EnemyProjectileList[Index].BulletPower = 20;
+               break;
+            }
+       }
+ 
+// STANDARD UPDATE STUFF, INCREASE AGE AND UPDATE COLLISIONBOX
+        object->Age++;
+        object->CollisionBox->Body.Force +=  object->Speed;//(DirectionMoving); //Vec2(sin(((int)(object->Age)) * 3.14159 / 180), .1);//(object->Speed;//Vec2(0,.3);
+        object->CollisionBox->Update();
+        object->Position = object->CollisionBox->Position;
+        object->Picture.Position =  object->Position;
+
+
+// Render the Red background for the Dragons healthbar.
+        SDL_Rect HBar ={object->Position.x - (object->Picture.Size.x / 2 ) + 15, 
+                        object->Position.y - (object->Picture.Size.y / 2),  
+                        100, 5};
+        SDL_SetRenderDrawColor(SCREEN->Renderer, 255, 0, 0, 255);
+        SDL_RenderFillRect(SCREEN->Renderer, &HBar);
+
+
+// Render the Green Dragons Healthbar 
+        float G = (object->Health *(100.0 / BOSSDRAGON_MAXLIFE));
+        SDL_Rect HBar2 ={object->Position.x - (object->Picture.Size.x / 2 ) + 15, 
+                        object->Position.y - (object->Picture.Size.y / 2),  
+                         G, 5};
+        SDL_SetRenderDrawColor(SCREEN->Renderer, 0, 255, 0, 255);
+        SDL_RenderFillRect(SCREEN->Renderer, &HBar2);
+    }
+}
 
 
 // I do not think that I use this
@@ -295,12 +459,12 @@ Enemy::Enemy()
         Type = EntityType::EnemyEntity;
         SetSpecialUpdate(DefaultEnemyUpdate);
 }
-Enemy::Enemy(Vec2  pos, Vec2 vel, Sprite *img)
+Enemy::Enemy(Vec2  pos, Vec2 vel, Sprite img)
 {
         Health = 100;
         Alive = true;
         Position = Vec2(0,0);
-        Picture = *img;
+        Picture = img;
         Age = 0;
         
         Invincible = false;
@@ -327,7 +491,7 @@ Player::Player()
     NumberOfKills = 0;
     Invincible = false;
     Type = EntityType::PlayerEntity;
-    HitWave = SoundEffect::PlayerHit;//new SoundEffect("assets\\PlayerHit.wav",1000);
+    HitWave = SoundEffect::PlayerHit; 
     SpecialUpdate  = NULL;
 }
 Powerup::Powerup(Vec2 pos, Vec2 vel, Sprite *img)
@@ -355,13 +519,12 @@ Projectile::Projectile(Vec2 pos, Vec2 vel, Sprite *img)
     Position = pos; 
     CollisionBox = img->MakeCollisionBox();
     CollisionBox->Position = pos;
-//    CollisionBox->Body.Force = vel;    // Initial Input
-//    CollisionBox->Body.Velocity = vel; // Steady speed
+    CollisionBox->Body.Velocity = vel; // Steady speed just changed this watch out
     Picture = *img;
     Alive = false;
     Type = EntityType::ProjectileEntity;
     SpecialUpdate  = NULL;
-    Death = SoundEffect::Boom1;   //Effect("assets\\Boom2.wav",2000);
+    Death = SoundEffect::Boom1;   
 }
 StaticObject::StaticObject() 
 {
@@ -374,12 +537,12 @@ StaticObject::StaticObject()
         Type = EntityType::StaticEntity;
         SpecialUpdate = NULL;
 }
-StaticObject::StaticObject(Vec2  pos, Vec2 vel, Sprite *img)
+StaticObject::StaticObject(Vec2  pos, Vec2 vel, Sprite img)
 {
  
         Alive = true;
         Position = Vec2(0,0);
-        Picture = *img;
+        Picture = img;
         Age = 0;
         
         Invincible = false;
@@ -442,15 +605,15 @@ void Entity::Initialize()
         PlayerOne->CollisionBox = PlayerOne->Picture.MakeCollisionBox();
         
         
-        Explosion = new StaticObject(Vec2(-10,-10), Vec2 (0,0), Sprite::Explosion);
+        Explosion = new StaticObject(Vec2(-10,-10), Vec2 (0,0), *Sprite::Explosion);
 
-        Entity::Dragon       = new Enemy(Vec2(-99,-99), Vec2(0,0), Sprite::DragonSprite);
+        Entity::Dragon       = new Enemy(Vec2(-99,-99), Vec2(0,0), *Sprite::DragonSprite);
         Entity::EnergySphere = new Powerup(Vec2(-99,-99), Vec2(0,0), Sprite::EnergySphere);
-        Entity::Explosion    = new StaticObject(Vec2(-99,-99), Vec2(0,0), Sprite::Explosion);
-        Entity::CthuluEye    = new Enemy(Vec2(-99,-99), Vec2(0,0), Sprite::CthuluEye);
+        Entity::Explosion    = new StaticObject(Vec2(-99,-99), Vec2(0,0), *Sprite::Explosion);
+        Entity::CthuluEye    = new Enemy(Vec2(-99,-99), Vec2(0,0), *Sprite::CthuluEye);
         Entity::Bullets      = new Projectile(Vec2(-99,-99), Vec2(0,0), Sprite::Bullet);
         Entity::FireBall     = new EnemyProjectile(Vec2(-99,-99), Vec2(0,0), Sprite::FireBall);
-        Entity::GreenEye     = new Enemy(Vec2(-99,-99), Vec2(0,0), Sprite::GreenEye);
+        Entity::GreenEye     = new Enemy(Vec2(-99,-99), Vec2(0,0), *Sprite::GreenEye);
 }
 void Powerup::Initialize()
 {
@@ -493,7 +656,7 @@ void EnemyProjectile::Initialize()
 ========================================================================================================================================================================================*/
 
 
-int Enemy::Spawn(Vec2 pos, Vec2 vel, Sprite *img)
+int Enemy::Spawn(Vec2 pos, Vec2 vel, Sprite img)
 {
     if(EnemyValidID.empty() != true)
     {
@@ -501,7 +664,7 @@ int Enemy::Spawn(Vec2 pos, Vec2 vel, Sprite *img)
         EnemyList[Index].Alive = true;
         EnemyList[Index].Health = 100;
         EnemyList[Index].Position = pos;
-        EnemyList[Index].Picture = *img;
+        EnemyList[Index].Picture = img;
 
 //*********************************!!!! WARNING !!!!!!  What The Fuck Is This Shit ************************************************
 // GLM Occasionally throws an Error here for seeingly no reason so instead of using their = I will attempt to use
@@ -523,7 +686,7 @@ int Enemy::Spawn(Vec2 pos, Vec2 vel, Sprite *img)
 // Damnit... Index == 194 and yet EnemyList only has 50 Elements... Thats gotta be it
 // How has that not been crashing it already?
 // Nope not it atleast not why the enemies stop spawning. The ValidID has gone totally blank...
-
+// UPDATE: *I BELIEVE I SOLVED THIS ISSUE AND IT WAS AN ERROR DUE TO NOT ENOUGH ENEMIES BEING ABLE TO SPAWN OR SOME SHIT LIKE THAT
         EnemyList[Index].Speed.x = vel.x;
         EnemyList[Index].Speed.y = vel.y;
 // ******************************************************************************************************************************
@@ -553,7 +716,7 @@ int Powerup::Spawn(Vec2 pos, Vec2 vel, Sprite *img)
         PowerupList[Index].ID = Index;
         PowerupList[Index].Age = 0;
         PowerupList[Index].EnergyBuff = 10;
-        PowerupList[Index].Death = SoundEffect::Boom2; //new SoundEffect("assets\\Boom2.wav",20000);
+        PowerupList[Index].Death = SoundEffect::Boom2; 
         PowerupList[Index].CollisionBox->Body.Velocity = vel;
         PowerupValidID.pop_back();
         return Index;
@@ -576,7 +739,7 @@ int Projectile::Spawn(Vec2 pos, Vec2 vel, Projectile *object)
         ProjectileList[Index].CollisionBox->Body.Position = pos;
         ProjectileList[Index].ID = Index;
         ProjectileList[Index].Age = 0;
-        //ProjectileList[Index].Death = SoundEffect::Boom2; //new SoundEffect("assets\\Boom2.wav",20000);
+        ProjectileList[Index].Death = SoundEffect::Boom2;  // Change1
         ProjectileList[Index].CollisionBox->Body.Velocity = vel;
         ProjectileValidID.pop_back();
         return Index;
@@ -598,14 +761,14 @@ int Projectile::Spawn(Vec2 pos, Vec2 vel, Sprite *img)
         ProjectileList[Index].CollisionBox->Body.Position = pos;
         ProjectileList[Index].ID = Index;
         ProjectileList[Index].Age = 0;
-        ProjectileList[Index].Death = SoundEffect::Boom2; //new SoundEffect("assets\\Boom2.wav",20000);
+        ProjectileList[Index].Death = SoundEffect::Boom2; 
         ProjectileList[Index].CollisionBox->Body.Velocity = vel;
         ProjectileValidID.pop_back();
         return Index;
     }
 return 0;
 }
-int StaticObject::Spawn(Vec2 pos, Vec2 vel, double lifespan,Sprite *img)
+int StaticObject::Spawn(Vec2 pos, Vec2 vel, double lifespan,Sprite img)
 {
     if(StaticObjectValidID.empty() != true)
     {
@@ -614,7 +777,7 @@ int StaticObject::Spawn(Vec2 pos, Vec2 vel, double lifespan,Sprite *img)
         StaticObjectList[Index].Alive = true;
         StaticObjectList[Index].Timer = SDL_GetTicks();
         StaticObjectList[Index].Position = pos;
-        StaticObjectList[Index].Picture = *img;
+        StaticObjectList[Index].Picture = img;
         StaticObjectList[Index].Speed = vel;
         StaticObjectList[Index].CollisionBox = StaticObjectList[Index].Picture.MakeCollisionBox();
         StaticObjectList[Index].CollisionBox->Body.Position = pos;
@@ -643,7 +806,7 @@ int EnemyProjectile::Spawn(Vec2 pos, Vec2 vel, EnemyProjectile *object)
         EnemyProjectileList[Index].CollisionBox->Body.Position = pos;
         EnemyProjectileList[Index].ID = Index;
         EnemyProjectileList[Index].Age = 0;
-        //ProjectileList[Index].Death = SoundEffect::Boom2; //new SoundEffect("assets\\Boom2.wav",20000);
+        EnemyProjectileList[Index].Death = SoundEffect::Boom2;  // Change1
         EnemyProjectileList[Index].CollisionBox->Body.Velocity = vel;
         ProjectileValidID.pop_back();
         return Index;
@@ -663,9 +826,9 @@ int EnemyProjectile::Spawn(Vec2 pos, Vec2 vel, Sprite *img)
         EnemyProjectileList[Index].CollisionBox = EnemyProjectileList[Index].Picture.MakeCollisionBox();
         EnemyProjectileList[Index].CollisionBox->Body.Position = pos;
         EnemyProjectileList[Index].ID = Index;
-        //EnemyProjectileList[Index].BulletPower = 25;
+        //EnemyProjectileList[Index].BulletPower = 25;// Change1.... Should I uncomment this
         EnemyProjectileList[Index].Age = 0;
-        EnemyProjectileList[Index].Death = SoundEffect::Boom2; //new SoundEffect("assets\\Boom2.wav",20000);
+        EnemyProjectileList[Index].Death = SoundEffect::Boom2;  
         EnemyProjectileList[Index].CollisionBox->Body.Velocity = vel;
 
         ProjectileValidID.pop_back();
@@ -699,9 +862,9 @@ void Player::Update()
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  CLAMP THE PLAYERS POSITION  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  
     if(CollisionBox->Body.Position.x < 10) CollisionBox->Body.Position.x = 10;
-    if(CollisionBox->Body.Position.x > (SCREENWIDTH - 10)) CollisionBox->Body.Position.x = (SCREENWIDTH - 10); 
+    if(CollisionBox->Body.Position.x > (SCREENWIDTH )) CollisionBox->Body.Position.x = (SCREENWIDTH); 
     
-    if(CollisionBox->Body.Position.y <  100) CollisionBox->Body.Position.y =  300;
+    if(CollisionBox->Body.Position.y <  0) CollisionBox->Body.Position.y =  0;
     if(CollisionBox->Body.Position.y > (SCREENHEIGHT)) CollisionBox->Body.Position.y = (SCREENHEIGHT );
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -715,22 +878,19 @@ void Player::Update()
                 if(CollisionBox->IsCollision(other.CollisionBox) == true)
                 {
                     Entity::PlayerOne->Score-= other.DamagePoints;
-                    Health -= 1;
+                    Health -= other.DamagePoints;
                     Invincible = true;
                     InvincibilityTimer = SDL_GetTicks();
                     HitWave->Play();
-                    //StaticObject::Spawn(Position, Vec2(0,0), 100, Sprite::Lightning01);
-
-                    Print("Enemy Hit the Player"); // CollisionResponse.EnemyResponse(other);
+                    Print("Enemy Hit the Player"); 
                 }
             }
         }
     }
     else // The player has recently been hit that we check its timer to see how long ago it was hit and if past a given time we Reset it
     {
- 
         Picture.CURRENT_STATE = 1;
-        if(SDL_GetTicks() - InvincibilityTimer > 100)
+        if(SDL_GetTicks() - InvincibilityTimer > 500)
         {
             Invincible = false;
             Picture.CURRENT_STATE = 0;
@@ -749,7 +909,7 @@ void Powerup::Update()
     if(Alive)
     {
         Age++; // Increase the age so we can kill it if its getting to old.
-        if(Age >= 200)
+        if(Age >= 500)
         {
             Kill();
             return;
@@ -760,10 +920,7 @@ void Powerup::Update()
 
         if(CollisionBox->IsCollision(Entity::PlayerOne->CollisionBox)) // Means it collided with the player
         {
-            //Entity::PlayerOne->Health += EnergyBuff;
-
             SpecialEffect();
-
             Kill();
             Print("Picked up Powerup");
         }
@@ -813,7 +970,6 @@ void StaticObject::Update()
         Position = CollisionBox->Position;
         Picture.Position = Position;
 
-
         if( Position.y > SCREENHEIGHT + SCREEN_BUFFER_AREA || Position.y < -SCREEN_BUFFER_AREA )
         {
             Kill();
@@ -843,6 +999,8 @@ void EnemyProjectile::Update()
         if(CollisionBox->IsCollision(Entity::PlayerOne->CollisionBox)) // Means it collided with the player
         {
             Entity::PlayerOne->Health -= BulletPower;
+            Entity::PlayerOne->Invincible = true;
+            Entity::PlayerOne->InvincibilityTimer = SDL_GetTicks();
             Death->Play();
             Kill();
             Print("Player Hit by FireBall");
@@ -866,8 +1024,7 @@ void Enemy::Kill()
 void Player::Kill()   
 {
 // There has to be an error here because the enemies randomly stop spawning and I think this might be the reason...
-
- // Check how many lives are left, Deduct points and respawn if appropriate
+// Check how many lives are left, Deduct points and respawn if appropriate
  Lives--;
  World::Reset();
 
@@ -878,7 +1035,7 @@ void Player::Kill()
 
             SCREEN->CLS();
             FontRender::Fonts->Write("GAME OVER MAN!", Vec2( SCREENWIDTH / 2 - 150, SCREENHEIGHT/ 2));
-            FontRender::Fonts->Write("Press Any Key to Restart", Vec2(((SCREENWIDTH *.5) -(20*14)), (SCREENHEIGHT *.5 + 30)) );
+            FontRender::Fonts->Write("Press Enter to Restart", Vec2(((SCREENWIDTH *.5) -(20*14)), (SCREENHEIGHT *.5 + 30)) );
             
             std::string Str = std::to_string(Player::PlayerOne->Score);
             const char* S = Str.c_str();
@@ -891,11 +1048,11 @@ void Player::Kill()
 // Show the Top Scores... Number of Kills, Pass/Kill Ratio etc...etc
 // Why in the fuck are the ID vectors going empty here?
 // OK... I think I got it..... It was Killing off the Creatures on Reset but never giving their IDs back to the ValidID vector
-                // When the game starts over ValidID vector was empty and nothing could spawn.
+// When the game starts over ValidID vector was empty and nothing could spawn.
                 Player::PlayerOne->Score = 0;
                 Player::PlayerOne->Lives = 4;
                 return;// break; <-- cCould it have been this? The accidental break. Was that UDB or WTF?
-                   // NOPE wasnt that....
+// NOPE wasnt that....
             }
             SCREEN->SYNC();
         }

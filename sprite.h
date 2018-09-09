@@ -57,19 +57,23 @@ public:
         Image *Sheet;
 
 
- static void Initialize();
- static void Unload();
- static SpriteSheet *Ship,
-                    *Eye, 
-                    *EnergySpheres,
-                    *Bullet,
-                    *PlasmaBurst,
-                    *Explosion1, 
-                    *Cthulu,
-                    *Dragon,
-                    *FireBall,
-                    *GreenEye, *FireOrb, *Lightning01;
-
+        static void Initialize();
+        static void Unload();
+        
+        static SpriteSheet 
+                  *Ship,
+                  *Eye, 
+                  *EnergySpheres,
+                  *Bullet,
+                  *PlasmaBurst,
+                  *Explosion1, 
+                  *Cthulu,
+                  *Dragon,
+                  *FireBall,
+                  *GreenEye, 
+                  *FireOrb, 
+                  *Lightning01;
+        
 };
 
 
@@ -115,7 +119,6 @@ public:
         
 private:
 		std::vector<SDL_Rect>& ADD_FRAME(SDL_Rect frame);
-
 };
 
 
@@ -124,15 +127,8 @@ private:
 //                                                                                                                                  
 // Each Entity have a variety of States it can be in. This class defines the Various Animation states for every Entity
 //==================================================================================================================================
-//
-//#define ShipSprite        0
-//#define EyeSprite         1
-//#define BulletSprite      2
-//#define PlasmaSprite      3
-//#define ExplosionSprite   4
-//#define EnergySphere      5
-//#define CthuluEyeSprite   6
-//#define DragonSprite      7
+
+
 
 class Sprite
 {
@@ -174,20 +170,32 @@ static Sprite *ShipSprite,
               *Bullet, 
               *DragonSprite,
               *FireBall, 
-              *GreenEye, *FireOrb, *Lightning01, *CthuluDeath, *BigGun, *BossDragon;
+              *GreenEye,
+              *FireOrb,
+              *Lightning01, 
+              *CthuluDeath,
+              *BigGun,
+              *BossDragon, 
+              *HealthPowerup,
+              *ExtraLife, 
+              *GreenFireBall;
               
 public:
 
-    inline void SetPosition(Vec2 pos){ Position = pos;}
+        inline void SetPosition(Vec2 pos){ Position = pos;}
 
-
-        void Update();
-        void Render();
+        void  Update();
+        void  Render();
         AABB* MakeCollisionBox();
 
  static void Initialize();
  static void Unload();
 };
+
+
+
+
+
 
 extern SDL_Rect MAKE_Rect(int x,int y, int w, int h);
 extern void DESTROY_SHEET(SpriteSheet *sheet);
