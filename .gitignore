@@ -3,3 +3,17 @@
 ################################################################################
 
 /.vs/Project5/v16
+/Bin/glm-0.9.9.5/doc
+/Bin/glm-0.9.9.5/cmake
+/Bin/glm-0.9.9.5/util
+/Bin/glm-0.9.9.5/.appveyor.yml
+*.gitignore
+*.yml
+*.txt
+*.in
+/Bin/glm-0.9.9.5/test
+/Bin/SDL2_mixer-2.0.4
+/Debug
+/Resources
+/.vs/SpaceJumper/v16
+/.vs

@@ -10,6 +10,24 @@
       <Platform>Win32</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Source\Collision.cpp" />
+    <ClCompile Include="Source\Entities.cpp" />
+    <ClCompile Include="Source\Main.cpp" />
+    <ClCompile Include="Source\Sprite.cpp" />
+    <ClCompile Include="Source\Window.cpp" />
+    <ClCompile Include="Source\World.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Header\Collision.h" />
+    <ClInclude Include="Header\Entities.h" />
+    <ClInclude Include="Header\Fonts.h" />
+    <ClInclude Include="Header\Physics.h" />
+    <ClInclude Include="Header\Sound.h" />
+    <ClInclude Include="Header\sprite.h" />
+    <ClInclude Include="Header\window.h" />
+    <ClInclude Include="Header\World.h" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{76B4E1DE-3E23-4AC4-988E-CAA0C65873F1}</ProjectGuid>
     <RootNamespace>Project5</RootNamespace>
@@ -18,13 +36,13 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v110</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v110</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
@@ -39,8 +57,12 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>C:\Users\Curt\Documents\Visual Studio 2012\Libraries\SDL_TTF\include;C:\Users\Curt\Documents\Visual Studio 2012\Libraries\SDL_Mixer\include;C:\Users\Curt\Documents\Visual Studio 2012\Libraries\SDL_Image\include;C:\Users\Curt\Documents\Visual Studio 2012\Libraries\glm-0.9.2.7\glm;C:\Users\Curt\Documents\Visual Studio 2012\Libraries\SDL2\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\Curt\Documents\Visual Studio 2012\Libraries\SDL_Mixer\lib\x86;C:\Users\Curt\Documents\Visual Studio 2012\Libraries\SDL_TTF\lib\x86;C:\Users\Curt\Documents\Visual Studio 2012\Libraries\SDL_Image\lib\x86;C:\Users\Curt\Documents\Visual Studio 2012\Libraries\SDL2\lib\x86;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Users\Sedit\source\repos\HopsonsGJProject\Bin\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\Sedit\source\repos\HopsonsGJProject\Bin\lib\x86;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <IncludePath>C:\Users\Sedit\source\repos\HopsonsGJProject\Bin\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\Sedit\source\repos\HopsonsGJProject\Bin\lib\x86;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -65,37 +87,6 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClCompile Include="Camera.cpp" />
-    <ClCompile Include="Collision.cpp" />
-    <ClCompile Include="Entities.cpp" />
-    <ClCompile Include="Fonts.cpp" />
-    <ClCompile Include="Layers.cpp" />
-    <ClCompile Include="Main.cpp" />
-    <ClCompile Include="Physics.cpp" />
-    <ClCompile Include="QuadTree.cpp" />
-    <ClCompile Include="Sound.cpp" />
-    <ClCompile Include="Sprite.cpp" />
-    <ClCompile Include="Window.cpp" />
-    <ClCompile Include="World.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="Camera.h" />
-    <ClInclude Include="Collision.h" />
-    <ClInclude Include="Entities.h" />
-    <ClInclude Include="Fonts.h" />
-    <ClInclude Include="Layers.h" />
-    <ClInclude Include="Physics.h" />
-    <ClInclude Include="QuadTree.h" />
-    <ClInclude Include="Sound.h" />
-    <ClInclude Include="sprite.h" />
-    <ClInclude Include="window.h" />
-    <ClInclude Include="World.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="DevLog.txt" />
-    <Text Include="RemovedCode.txt" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
